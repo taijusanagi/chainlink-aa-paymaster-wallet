@@ -1,4 +1,4 @@
-import { Box, Container, Flex, HStack, Icon, Image, Link, Text } from "@chakra-ui/react";
+import { Box, Container, Flex, HStack, Icon, Image, Link, SimpleGrid, Stack, Text } from "@chakra-ui/react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import React from "react";
 import { FaGithub } from "react-icons/fa";
@@ -10,7 +10,7 @@ export interface DefaultLayoutProps {
 export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
   return (
     <Flex minHeight={"100vh"} direction={"column"}>
-      <Container as="section" maxW="8xl" mb="8">
+      <Container as="section" maxW="8xl">
         <Box as="nav" py="4">
           <Flex justify="space-between" alignItems={"center"} h="8">
             <Text fontSize="lg" fontWeight={"bold"}>
@@ -22,10 +22,8 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
           </Flex>
         </Box>
       </Container>
-      <Container maxW="2xl" py="4" flex={1}>
-        <Box py="8" px="8" boxShadow={"base"} borderRadius="2xl" bgColor={"white"}>
-          {children}
-        </Box>
+      <Container maxW="6xl" py="4" flex={1}>
+        {children}
       </Container>
       <Container maxW="8xl">
         <HStack justify={"space-between"}>
