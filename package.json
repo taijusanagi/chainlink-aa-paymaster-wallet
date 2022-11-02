@@ -10,8 +10,14 @@
   },
   "scripts": {
     "prepare": "husky install",
+    "lint": "run-p lint:*",
+    "lint:app": "yarn workspace @aa-capsule/app lint",
+    "lint:contracts": "yarn workspace @aa-capsule/contracts lint",
+    "test": "run-p test:*",
+    "test:contracts": "yarn workspace @aa-capsule/contracts test",
     "dev": "run-p dev:*",
     "dev:app": "yarn workspace @aa-capsule/app dev",
+    "prebuild": "yarn workspace @aa-capsule/contracts build",
     "build": "run-p build:*",
     "build:app": "yarn workspace @aa-capsule/app build"
   },
