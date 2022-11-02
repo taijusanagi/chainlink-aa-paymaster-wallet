@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Heading,
+  Icon,
   Input,
   Menu,
   MenuButton,
@@ -17,14 +18,18 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
-import { AiOutlineDown, AiOutlinePlus } from "react-icons/ai";
+import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
 
+import { Modal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
 import { truncate } from "@/lib/utils";
 
 const HomePage: NextPage = () => {
+  const paymasterDisclosure = useDisclosure();
+
   return (
     <DefaultLayout>
       <Stack spacing="4">
@@ -37,9 +42,9 @@ const HomePage: NextPage = () => {
               * Please connect Goerli network
             </Text>
           </Stack>
-          <Stack>
+          <Stack justifyContent={"center"}>
             <Flex justify={"right"}>
-              <Button boxShadow={"base"} borderRadius="md" bgColor={"white"} size="xs">
+              <Button borderRadius="md" bgColor={"white"} size="xs" onClick={paymasterDisclosure.onOpen}>
                 <Text fontSize="xx-small" color="gray.600" textAlign={"right"}>
                   <Text as="span">Paymaster: </Text>
                   <Text as="span" fontSize="xs" mr="1">
@@ -86,11 +91,16 @@ const HomePage: NextPage = () => {
             </Box>
             <Box w="full" px="6" py="4" boxShadow={"base"} borderRadius="xl" bgColor={"white"}>
               <Stack>
-                <Text fontWeight={"medium"} color="gray.600">
-                  Wallet Connect
-                </Text>
+                <Flex justify={"space-between"}>
+                  <Text fontWeight={"medium"} color="gray.600">
+                    Wallet Connect
+                  </Text>
+                  <Button size="xs" variant={"ghost"} p="0" borderRadius="none">
+                    <Icon as={AiOutlineQrcode} aria-label="qrcode" color="gray.400" w={6} h={6} cursor="pointer" />
+                  </Button>
+                </Flex>
                 <Input />
-                <Button colorScheme={"blue"}>Scan</Button>
+                <Button colorScheme={"blue"}>Connect</Button>
               </Stack>
             </Box>
           </SimpleGrid>
@@ -107,7 +117,7 @@ const HomePage: NextPage = () => {
                       Tokens
                     </Text>
                     <Text color="gray.600" fontSize="xs">
-                      * This can be integrated with some data provider API
+                      * Manage tokens
                     </Text>
                   </Stack>
                 </TabPanel>
@@ -117,7 +127,7 @@ const HomePage: NextPage = () => {
                       Collectables
                     </Text>
                     <Text color="gray.600" fontSize="xs">
-                      * This can be integrated with some data provider API
+                      * Manage collectables
                     </Text>
                   </Stack>
                 </TabPanel>
@@ -126,6 +136,13 @@ const HomePage: NextPage = () => {
           </Flex>
         </Stack>
       </Stack>
+      <Modal isOpen={paymasterDisclosure.isOpen} onClose={paymasterDisclosure.onClose} header="Paymaster">
+        <Stack>
+          <Text color="gray.600" fontSize="xs">
+            * Manage funds of paymaster
+          </Text>
+        </Stack>
+      </Modal>
     </DefaultLayout>
   );
 };
