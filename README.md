@@ -1,6 +1,6 @@
-# aa-capsule
+# AA Capsule
 
-This is AA Capsule repository
+!["logo"](./docs/logo.png)
 
 ## Description
 
