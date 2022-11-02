@@ -5,13 +5,14 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { AppProps } from "next/app";
 import { WagmiConfig } from "wagmi";
 
+import { myChakraUITheme, myRainbowKitTheme } from "@/lib/theme";
 import { chains, wagmiClient } from "@/lib/wallet";
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   return (
-    <ChakraProvider resetCSS>
+    <ChakraProvider resetCSS theme={myChakraUITheme}>
       <WagmiConfig client={wagmiClient}>
-        <RainbowKitProvider chains={chains} showRecentTransactions={true}>
+        <RainbowKitProvider chains={chains} showRecentTransactions={true} theme={myRainbowKitTheme}>
           <Component {...pageProps} />
         </RainbowKitProvider>
       </WagmiConfig>

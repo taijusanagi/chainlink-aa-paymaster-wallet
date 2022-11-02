@@ -449,6 +449,13 @@
     "@chakra-ui/react-context" "2.0.4"
     "@chakra-ui/react-use-safe-layout-effect" "2.0.2"
 
+"@chakra-ui/pro-theme@^0.0.57":
+  version "0.0.57"
+  resolved "https://registry.yarnpkg.com/@chakra-ui/pro-theme/-/pro-theme-0.0.57.tgz#84e0c15214c923971bdde9d921148dd8eb2da5ed"
+  integrity sha512-ZWjE43nx5J2GchyClqWMpKGEomf/re5kxPegH3oRdv3WpSQehxaSY9oLEk0Cul8TqwetquoS7/rV/nla+LsZ8A==
+  dependencies:
+    "@chakra-ui/theme-tools" "2.0.12"
+
 "@chakra-ui/progress@2.0.12":
   version "2.0.12"
   resolved "https://registry.yarnpkg.com/@chakra-ui/progress/-/progress-2.0.12.tgz#7ce57fe2822d1741c26e82960ca02c667a265a05"
