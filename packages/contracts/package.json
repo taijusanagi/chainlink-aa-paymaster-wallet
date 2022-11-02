@@ -39,5 +39,9 @@
     "ts-node": "^10.9.1",
     "typechain": "^8.1.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@account-abstraction/contracts": "^0.2.0",
+    "@account-abstraction/sdk": "^0.2.3",
+    "@openzeppelin/contracts": "^4.7.3"
+  }
 }
