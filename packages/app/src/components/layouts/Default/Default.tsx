@@ -1,8 +1,7 @@
-import { Box, Container, Flex, HStack, Text } from "@chakra-ui/react";
+import { Box, Container, Flex, HStack, Icon, Image, Link, Text } from "@chakra-ui/react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import React from "react";
-
-import { APP_NAME } from "@/config";
+import { FaGithub } from "react-icons/fa";
 
 export interface DefaultLayoutProps {
   children: React.ReactNode;
@@ -15,7 +14,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
         <Box as="nav" py="4">
           <Flex justify="space-between" alignItems={"center"} h="8">
             <Text fontSize="lg" fontWeight={"bold"}>
-              {APP_NAME}
+              <Image src="/img/logo.png" alt="logo" h="8" />
             </Text>
             <HStack>
               <ConnectButton accountStatus={"full"} showBalance={false} chainStatus={"name"} />
@@ -23,10 +22,22 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
           </Flex>
         </Box>
       </Container>
-      <Container maxW="2xl" py="12">
+      <Container maxW="2xl" py="4" flex={1}>
         <Box py="8" px="8" boxShadow={"base"} borderRadius="2xl" bgColor={"white"}>
           {children}
         </Box>
+      </Container>
+      <Container maxW="8xl">
+        <HStack justify={"space-between"}>
+          <Text fontSize={"xs"} color="gray.400" fontWeight={"medium"} py="4">
+            <Link href="https://tokyo.akindo.io/" target={"_blank"}>
+              😘 Tokyo Web3 Hackathon
+            </Link>
+          </Text>
+          <Link href="https://github.com/taijusanagi/aa-capsule" target={"_blank"}>
+            <Icon as={FaGithub} aria-label="github" color="gray.400" />
+          </Link>
+        </HStack>
       </Container>
     </Flex>
   );
