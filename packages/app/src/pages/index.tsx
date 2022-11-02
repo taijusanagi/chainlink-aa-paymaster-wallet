@@ -21,14 +21,33 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
+import { useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
 
-import { Modal } from "@/components/elements/Modal";
+import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
 import { truncate } from "@/lib/utils";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const QrReader = require("react-qr-scanner");
+
 const HomePage: NextPage = () => {
   const paymasterDisclosure = useDisclosure();
+  const qrReaderDisclosure = useDisclosure();
+
+  const [walletConnectURI, setWalletConnectURI] = useState("");
+
+  const onQRReaderScan = (result: { text: string }) => {
+    if (!result) {
+      return;
+    }
+    setWalletConnectURI(result.text);
+    qrReaderDisclosure.onClose();
+  };
+
+  const onQRReaderError = (err: unknown) => {
+    console.error(err);
+  };
 
   return (
     <DefaultLayout>
@@ -95,11 +114,11 @@ const HomePage: NextPage = () => {
                   <Text fontWeight={"medium"} color="gray.600">
                     Wallet Connect
                   </Text>
-                  <Button size="xs" variant={"ghost"} p="0" borderRadius="none">
+                  <Button size="xs" variant={"ghost"} p="0" borderRadius="none" onClick={qrReaderDisclosure.onOpen}>
                     <Icon as={AiOutlineQrcode} aria-label="qrcode" color="gray.400" w={6} h={6} cursor="pointer" />
                   </Button>
                 </Flex>
-                <Input />
+                <Input type={"text"} value={walletConnectURI} onChange={(e) => setWalletConnectURI(e.target.value)} />
                 <Button colorScheme={"blue"}>Connect</Button>
               </Stack>
             </Box>
@@ -136,13 +155,16 @@ const HomePage: NextPage = () => {
           </Flex>
         </Stack>
       </Stack>
-      <Modal isOpen={paymasterDisclosure.isOpen} onClose={paymasterDisclosure.onClose} header="Paymaster">
+      <GeneralModal isOpen={paymasterDisclosure.isOpen} onClose={paymasterDisclosure.onClose} header="Manage Paymaster">
         <Stack>
           <Text color="gray.600" fontSize="xs">
             * Manage funds of paymaster
           </Text>
         </Stack>
-      </Modal>
+      </GeneralModal>
+      <FullModal isOpen={qrReaderDisclosure.isOpen} onClose={qrReaderDisclosure.onClose}>
+        <QrReader delay={500} onError={onQRReaderError} onScan={onQRReaderScan} />
+      </FullModal>
     </DefaultLayout>
   );
 };

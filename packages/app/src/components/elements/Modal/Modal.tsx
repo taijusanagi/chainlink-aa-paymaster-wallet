@@ -10,13 +10,18 @@ import {
 import React from "react";
 
 export interface ModalProps {
-  header?: string;
   children: React.ReactNode;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const Modal: React.FC<ModalProps> = ({ header, children, isOpen, onClose }) => {
+export interface GeneralModalProps extends ModalProps {
+  header: string;
+}
+
+export type FullModalProps = ModalProps;
+
+export const GeneralModal: React.FC<GeneralModalProps> = ({ header, children, isOpen, onClose }) => {
   return (
     <_Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -32,6 +37,18 @@ export const Modal: React.FC<ModalProps> = ({ header, children, isOpen, onClose 
         <ModalBody px="6" pt="2" pb="8">
           {children}
         </ModalBody>
+      </ModalContent>
+    </_Modal>
+  );
+};
+
+export const FullModal: React.FC<FullModalProps> = ({ children, isOpen, onClose }) => {
+  return (
+    <_Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <ModalOverlay />
+      <ModalContent m="2">
+        <ModalCloseButton color={"gray.600"} zIndex="10" />
+        {children}
       </ModalContent>
     </_Modal>
   );
