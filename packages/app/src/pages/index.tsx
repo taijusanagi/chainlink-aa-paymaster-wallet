@@ -268,13 +268,13 @@ const HomePage: NextPage = () => {
                     <MenuDivider />
 
                     <Button size={"xs"} leftIcon={<AiOutlinePlus />} variant={"ghost"} w="full" disabled>
-                      Add more (not implemented)
+                      Add (not implemented)
                     </Button>
                   </MenuList>
                 </Menu>
               </Stack>
             </Flex>
-            <Stack spacing="8">
+            <Stack spacing="4">
               <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={4}>
                 <Box w="full" px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                   <Stack spacing="2">
@@ -306,21 +306,9 @@ const HomePage: NextPage = () => {
                   <Stack>
                     <Flex justify={"space-between"}>
                       <Box>
-                        <Text fontSize="sm" as="span" fontWeight={"bold"} color="gray.600" mr="1">
+                        <Text fontSize="sm" as="span" fontWeight={"bold"} color="gray.600">
                           WalletConnect
                         </Text>
-                        <Button
-                          size="xs"
-                          variant="ghost"
-                          color={"blue.500"}
-                          p="0"
-                          borderRadius="none"
-                          as="a"
-                          href="https://example.walletconnect.org/"
-                          target={"_blank"}
-                        >
-                          <Icon as={FiExternalLink} w={4} h={4} />
-                        </Button>
                       </Box>
                       <Button
                         size="xs"
@@ -356,13 +344,13 @@ const HomePage: NextPage = () => {
               <Flex justify={"center"}>
                 <Tabs isFitted maxW="xl" w="full" defaultIndex={1}>
                   <TabList mb="1em">
-                    <Tab isDisabled>Tokens</Tab>
+                    <Tab>Tokens</Tab>
                     <Tab>Collectables</Tab>
                   </TabList>
                   <TabPanels>
                     <TabPanel px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                       <Stack>
-                        <Text fontWeight={"medium"} color="gray.600">
+                        <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
                           Tokens
                         </Text>
                         <Text color="gray.600" fontSize="xs">
@@ -372,11 +360,8 @@ const HomePage: NextPage = () => {
                     </TabPanel>
                     <TabPanel px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                       <Stack>
-                        <Text fontWeight={"medium"} color="gray.600">
+                        <Text as="span" fontWeight={"bold"} fontSize="sm" color="gray.600">
                           Collectables
-                        </Text>
-                        <Text color="gray.600" fontSize="xs">
-                          * Manage collectables
                         </Text>
                       </Stack>
                     </TabPanel>
