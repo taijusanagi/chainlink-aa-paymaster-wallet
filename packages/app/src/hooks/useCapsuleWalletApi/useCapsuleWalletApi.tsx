@@ -8,13 +8,14 @@ import rpc from "../../../../contracts/config/rpc.json";
 import deployments from "../../../../contracts/deployments.json";
 import { CapsuleWalletAPI } from "../../../../contracts/lib/CapsuleWalletAPI";
 
-export const useCapsuleWalletAPI = () => {
+export const useCapsuleWalletAPI = (index: number) => {
   const { data: signer } = useSigner();
 
-  const [signerAddress, setSignerAddress] = useState("");
   const [capsuleWalletAPI, setCapsuleWalletAPI] = useState<CapsuleWalletAPI>();
+
+  const [signerAddress, setSignerAddress] = useState("");
   const [capsuleWalletAddress, setCapsuleWalletAddress] = useState("");
-  const [capsuleWalletBalance, setCapsuleWalletBalance] = useState("0.0");
+  const [capsuleWalletBalance, setCapsuleWalletBalance] = useState("0");
 
   const bundler = useMemo(() => {
     return new HttpRpcClient("http://localhost:3001/rpc", deployments.entryPoint, 5);
@@ -48,6 +49,7 @@ export const useCapsuleWalletAPI = () => {
         entryPointAddress: deployments.entryPoint,
         owner: signer,
         factoryAddress: deployments.factory,
+        index,
       });
 
       setCapsuleWalletAPI(capsuleWalletAPI);
@@ -60,7 +62,7 @@ export const useCapsuleWalletAPI = () => {
         setCapsuleWalletBalance(capsuleWalletBalance);
       });
     })();
-  }, [provider, signer]);
+  }, [provider, signer, index]);
 
   return {
     signerAddress,

@@ -6,6 +6,8 @@ import "@typechain/hardhat";
 import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 
+import rpc from "./config/rpc.json";
+
 dotenv.config();
 
 export const accounts = process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [];
@@ -25,6 +27,12 @@ const config: HardhatUserConfig = {
         enabled: true,
         runs: 200,
       },
+    },
+  },
+  networks: {
+    goerli: {
+      url: rpc.goerli,
+      accounts,
     },
   },
 };

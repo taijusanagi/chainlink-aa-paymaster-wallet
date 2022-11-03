@@ -28,6 +28,7 @@ import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
 
 import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
+import { useCapsuleWalletAPI } from "@/hooks/useCapsuleWalletApi";
 import { truncate } from "@/lib/utils";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -35,18 +36,17 @@ const QrReader = require("react-qr-scanner");
 
 const HomePage: NextPage = () => {
   /*
-   * Disclosure Hooks
+   * Hooks
    */
+
+  const [capsuleWalletIndex, setCapsuleWalletIndex] = useState(0);
+  const { capsuleWalletAddress } = useCapsuleWalletAPI(capsuleWalletIndex);
   const paymasterDisclosure = useDisclosure();
   const qrReaderDisclosure = useDisclosure();
-
-  /*
-   * Custom Hooks
-   */
   const [walletConnectURI, setWalletConnectURI] = useState("");
 
   /*
-   * QRCode
+   * Functions
    */
   const onQRReaderScan = (result: { text: string }) => {
     if (!result) {
@@ -60,9 +60,6 @@ const HomePage: NextPage = () => {
     console.error(err);
   };
 
-  /*
-   * Wallet Connect
-   */
   const connectByWalletConnect = async () => {
     const connector = new WalletConnect({
       uri: walletConnectURI,
@@ -122,11 +119,10 @@ const HomePage: NextPage = () => {
             </Flex>
             <Menu>
               <MenuButton as={Button} size="xs" color="gray.600" rightIcon={<AiOutlineDown />}>
-                {truncate("0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8", 5, 5)}
+                {truncate(capsuleWalletAddress, 5, 5)}
               </MenuButton>
               <MenuList>
-                <MenuItem fontSize="x-small">0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8</MenuItem>
-                <MenuItem fontSize="x-small">0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8</MenuItem>
+                <MenuItem fontSize="x-small">{capsuleWalletAddress}</MenuItem>
                 <MenuDivider />
                 <MenuItem fontSize={"xs"} icon={<AiOutlinePlus />}>
                   Add more
