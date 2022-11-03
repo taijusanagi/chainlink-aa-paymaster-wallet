@@ -20,6 +20,8 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import WalletConnect from "@walletconnect/client";
+import { convertHexToUtf8 } from "@walletconnect/utils";
 import { NextPage } from "next";
 import { useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
@@ -32,11 +34,20 @@ import { truncate } from "@/lib/utils";
 const QrReader = require("react-qr-scanner");
 
 const HomePage: NextPage = () => {
+  /*
+   * Disclosure Hooks
+   */
   const paymasterDisclosure = useDisclosure();
   const qrReaderDisclosure = useDisclosure();
 
+  /*
+   * Custom Hooks
+   */
   const [walletConnectURI, setWalletConnectURI] = useState("");
 
+  /*
+   * QRCode
+   */
   const onQRReaderScan = (result: { text: string }) => {
     if (!result) {
       return;
@@ -47,6 +58,42 @@ const HomePage: NextPage = () => {
 
   const onQRReaderError = (err: unknown) => {
     console.error(err);
+  };
+
+  /*
+   * Wallet Connect
+   */
+  const connectByWalletConnect = async () => {
+    const connector = new WalletConnect({
+      uri: walletConnectURI,
+    });
+    await connector.createSession();
+    connector.on("session_request", (error, payload) => {
+      console.log("session_request", payload);
+      if (error) {
+        throw error;
+      }
+      // connector.approveSession({ chainId: network.chain.id, accounts: [contractWalletAddress] });
+    });
+    connector.on("call_request", async (error, payload) => {
+      console.log("call_request", payload);
+      if (error) {
+        throw error;
+      }
+      if (payload.method === "eth_sendTransaction") {
+        console.log("eth_sendTransaction");
+      }
+
+      if (payload.method === "personal_sign") {
+        console.log("personal_sign");
+      }
+    });
+    connector.on("disconnect", (error, payload) => {
+      console.log("disconnect", payload);
+      if (error) {
+        throw error;
+      }
+    });
   };
 
   return (
@@ -119,7 +166,9 @@ const HomePage: NextPage = () => {
                   </Button>
                 </Flex>
                 <Input type={"text"} value={walletConnectURI} onChange={(e) => setWalletConnectURI(e.target.value)} />
-                <Button colorScheme={"blue"}>Connect</Button>
+                <Button colorScheme={"blue"} onClick={connectByWalletConnect}>
+                  Connect
+                </Button>
               </Stack>
             </Box>
           </SimpleGrid>
