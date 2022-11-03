@@ -4,6 +4,7 @@ import {
   Center,
   Flex,
   Heading,
+  HStack,
   Icon,
   Image,
   Input,
@@ -22,12 +23,11 @@ import {
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import WalletConnect from "@walletconnect/client";
-import { convertHexToUtf8 } from "@walletconnect/utils";
 import { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
-import { useAccount } from "wagmi";
 
 import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
@@ -43,14 +43,19 @@ const HomePage: NextPage = () => {
   /*
    * Hooks
    */
+  const { openConnectModal } = useConnectModal();
   const { isWagmiConnected } = useIsWagmiConnected();
   const { capsuleWalletAddress } = useCapsuleWalletAPI();
+
   const paymasterDisclosure = useDisclosure();
   const qrReaderDisclosure = useDisclosure();
-  const [walletConnectURI, setWalletConnectURI] = useState("");
+
+  const [docIndex, setDocIndex] = useState(0);
 
   const [isWalletConnectConnecting, setIsWalletConnectConnecting] = useState(false);
   const [isWalletConnectSessionEstablished, setIsWalletConnectSessionEstablished] = useState(false);
+
+  const [walletConnectURI, setWalletConnectURI] = useState("");
 
   /*
    * Functions
@@ -70,12 +75,8 @@ const HomePage: NextPage = () => {
     console.error(err);
   };
 
-  const connectWallet = () => {
-    console.log("connect wallet");
-  };
-
-  const startDocs = () => {
-    console.log("start tutorial");
+  const incrementDocIndex = () => {
+    setDocIndex((prevIndex) => prevIndex + 1);
   };
 
   const connectWithWalletConnect = async (walletConnectURI: string) => {
@@ -131,24 +132,76 @@ const HomePage: NextPage = () => {
   return (
     <DefaultLayout>
       {!isWagmiConnected && (
-        <Box maxW="sm" mx="auto" px="8" py="12" boxShadow={"base"} borderRadius="xl" bgColor={"white"}>
+        <Box maxW="md" mx="auto" px="8" py="12" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
           <Stack spacing="6">
             <Heading fontWeight={"bold"} size={"xs"} color="gray.600" textAlign={"center"}>
               AA Capsule
             </Heading>
-            <Text align={"center"} fontSize="xs" color="gray.600">
-              Encapsulated wallet by Account Abstraction
-            </Text>
-            <Center py="8">
-              <Image h="160" src="./img/security.svg" alt="security"></Image>
-            </Center>
+            {docIndex === 0 && (
+              <Stack>
+                <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
+                  Encapsulated wallet by Account Abstraction
+                </Text>
+                <Center py="12">
+                  <Image h="160" src="./img/security.svg" alt="security"></Image>
+                </Center>
+              </Stack>
+            )}
+            {docIndex === 1 && (
+              <Stack>
+                <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
+                  Description
+                </Text>
+                <Center py="12">
+                  <Image h="160" src="./img/security.svg" alt="security"></Image>
+                </Center>
+              </Stack>
+            )}
+            {docIndex === 2 && (
+              <Stack>
+                <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
+                  How it works
+                </Text>
+                <Center py="12">
+                  <Image h="160" src="./img/security.svg" alt="security"></Image>
+                </Center>
+              </Stack>
+            )}
+            {docIndex === 3 && (
+              <Stack>
+                <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
+                  Benefit
+                </Text>
+                <Center py="12">
+                  <Image h="160" src="./img/security.svg" alt="security"></Image>
+                </Center>
+              </Stack>
+            )}
+            {docIndex === 4 && (
+              <Stack>
+                <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
+                  Let&apos;s use AA Capsule for best security!
+                </Text>
+                <Center py="12">
+                  <Image h="160" src="./img/unlock.svg" alt="unlock"></Image>
+                </Center>
+              </Stack>
+            )}
             <Stack>
-              <Button onClick={connectWallet} colorScheme={"blue"} fontWeight="bold">
+              <Button onClick={openConnectModal} colorScheme={"blue"} fontWeight="bold">
                 Connect Wallet
               </Button>
-              <Button onClick={startDocs} fontWeight="bold" color="gray.600">
-                Docs
-              </Button>
+              <HStack>
+                <Button
+                  w="full"
+                  onClick={incrementDocIndex}
+                  fontWeight="bold"
+                  color="gray.600"
+                  disabled={docIndex === 4}
+                >
+                  {docIndex === 0 ? "Docs" : "Next"}
+                </Button>
+              </HStack>
             </Stack>
           </Stack>
         </Box>
@@ -193,7 +246,7 @@ const HomePage: NextPage = () => {
             </Flex>
             <Stack spacing="8">
               <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={4}>
-                <Box w="full" px="6" py="4" boxShadow={"base"} borderRadius="xl" bgColor={"white"}>
+                <Box w="full" px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                   <Stack>
                     <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
                       Capsule Wallet
@@ -211,7 +264,7 @@ const HomePage: NextPage = () => {
                     </Text>
                   </Stack>
                 </Box>
-                <Box w="full" px="6" py="4" boxShadow={"base"} borderRadius="xl" bgColor={"white"}>
+                <Box w="full" px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                   <Stack>
                     <Flex justify={"space-between"}>
                       <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
@@ -255,7 +308,7 @@ const HomePage: NextPage = () => {
                     <Tab>Collectables</Tab>
                   </TabList>
                   <TabPanels>
-                    <TabPanel px="6" py="4" boxShadow={"base"} borderRadius="xl" bgColor={"white"}>
+                    <TabPanel px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                       <Stack>
                         <Text fontWeight={"medium"} color="gray.600">
                           Tokens
@@ -265,7 +318,7 @@ const HomePage: NextPage = () => {
                         </Text>
                       </Stack>
                     </TabPanel>
-                    <TabPanel px="6" py="4" boxShadow={"base"} borderRadius="xl" bgColor={"white"}>
+                    <TabPanel px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                       <Stack>
                         <Text fontWeight={"medium"} color="gray.600">
                           Collectables

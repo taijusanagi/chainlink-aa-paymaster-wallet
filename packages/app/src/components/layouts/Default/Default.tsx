@@ -1,5 +1,6 @@
-import { Box, Container, Flex, HStack, Icon, Image, Link, SimpleGrid, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Container, Flex, HStack, Icon, Image, Link, Text } from "@chakra-ui/react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useRouter } from "next/router";
 import React from "react";
 import { FaGithub } from "react-icons/fa";
 
@@ -8,21 +9,23 @@ export interface DefaultLayoutProps {
 }
 
 export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
+  const router = useRouter();
+
   return (
     <Flex minHeight={"100vh"} direction={"column"}>
       <Container as="section" maxW="8xl">
         <Box as="nav" py="4">
           <Flex justify="space-between" alignItems={"center"} h="8">
-            <Text fontSize="lg" fontWeight={"bold"}>
+            <Button variant="ghost" onClick={() => router.reload()}>
               <Image src="/img/logo.png" alt="logo" h="8" />
-            </Text>
+            </Button>
             <HStack>
               <ConnectButton accountStatus={"full"} showBalance={false} chainStatus={"name"} />
             </HStack>
           </Flex>
         </Box>
       </Container>
-      <Container maxW="6xl" py="6" flex={1}>
+      <Container maxW="6xl" py="8" flex={1}>
         {children}
       </Container>
       <Container maxW="8xl">

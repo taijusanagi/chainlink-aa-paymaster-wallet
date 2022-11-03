@@ -22,4 +22,4 @@ TBD
 
 - Should use [Chakra UI blue theme](https://chakra-ui.com/docs/styled-system/theme#blue)
 
-- Should use images from [unDraw](https://undraw.co/)
+- Should use images with #3182CE (equivalent to blue.500 in Chakra UI) in [unDraw](https://undraw.co/)
