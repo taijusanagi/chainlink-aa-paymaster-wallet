@@ -50,7 +50,7 @@ const HomePage: NextPage = () => {
   const paymasterDisclosure = useDisclosure();
   const qrReaderDisclosure = useDisclosure();
 
-  const [docIndex, setDocIndex] = useState(0);
+  const [descriptionIndex, setDescriptionIndex] = useState(0);
 
   const [isWalletConnectConnecting, setIsWalletConnectConnecting] = useState(false);
   const [isWalletConnectSessionEstablished, setIsWalletConnectSessionEstablished] = useState(false);
@@ -75,8 +75,8 @@ const HomePage: NextPage = () => {
     console.error(err);
   };
 
-  const incrementDocIndex = () => {
-    setDocIndex((prevIndex) => prevIndex + 1);
+  const incrementDescriptionIndex = () => {
+    setDescriptionIndex((prevIndex) => prevIndex + 1);
   };
 
   const connectWithWalletConnect = async (walletConnectURI: string) => {
@@ -132,58 +132,58 @@ const HomePage: NextPage = () => {
   return (
     <DefaultLayout>
       {!isWagmiConnected && (
-        <Box maxW="md" mx="auto" px="8" py="12" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
-          <Stack spacing="6">
+        <Box maxW="lg" mx="auto" px="8" py="12" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
+          <Stack spacing="4">
             <Heading fontWeight={"bold"} size={"xs"} color="gray.600" textAlign={"center"}>
-              AA Capsule
+              Capsule Wallet
             </Heading>
-            {docIndex === 0 && (
+            {descriptionIndex === 0 && (
               <Stack>
                 <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
                   Encapsulated wallet by Account Abstraction
                 </Text>
-                <Center py="12">
-                  <Image h="160" src="./img/security.svg" alt="security"></Image>
+                <Center py="8">
+                  <Image h="240" src="./img/security.svg" alt="security" objectFit={"contain"} />
                 </Center>
               </Stack>
             )}
-            {docIndex === 1 && (
+            {descriptionIndex === 1 && (
               <Stack>
                 <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
-                  Description
+                  Capsule Wallet is Encapsulated security layer of your wallet
                 </Text>
-                <Center py="12">
-                  <Image h="160" src="./img/security.svg" alt="security"></Image>
+                <Center py="8">
+                  <Image h="240" src="./img/concept.png" alt="security" objectFit={"contain"} />
                 </Center>
               </Stack>
             )}
-            {docIndex === 2 && (
+            {descriptionIndex === 2 && (
               <Stack>
-                <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
-                  How it works
+                <Text align={"center"} fontSize="xs" fontWeight={"medium"} objectFit={"contain"} color="gray.600">
+                  Burner wallets for better security but it is hard to manage
                 </Text>
-                <Center py="12">
-                  <Image h="160" src="./img/security.svg" alt="security"></Image>
+                <Center py="8">
+                  <Image h="240" src="./img/burner-wallet.png" alt="security" objectFit={"contain"} />
                 </Center>
               </Stack>
             )}
-            {docIndex === 3 && (
+            {descriptionIndex === 3 && (
               <Stack>
                 <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
-                  Benefit
+                  Capsule wallet provides security with better UX
                 </Text>
-                <Center py="12">
-                  <Image h="160" src="./img/security.svg" alt="security"></Image>
+                <Center py="8">
+                  <Image h="240" src="./img/account-abstraction.png" alt="security" objectFit={"contain"} />
                 </Center>
               </Stack>
             )}
-            {docIndex === 4 && (
+            {descriptionIndex === 4 && (
               <Stack>
                 <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
-                  Let&apos;s use AA Capsule for best security!
+                  Let&apos;s use Capsule Wallet for your crypto journey!
                 </Text>
-                <Center py="12">
-                  <Image h="160" src="./img/unlock.svg" alt="unlock"></Image>
+                <Center py="8">
+                  <Image h="240" src="./img/unlock.svg" alt="unlock"></Image>
                 </Center>
               </Stack>
             )}
@@ -194,12 +194,12 @@ const HomePage: NextPage = () => {
               <HStack>
                 <Button
                   w="full"
-                  onClick={incrementDocIndex}
+                  onClick={incrementDescriptionIndex}
                   fontWeight="bold"
                   color="gray.600"
-                  disabled={docIndex === 4}
+                  disabled={descriptionIndex === 4}
                 >
-                  {docIndex === 0 ? "Docs" : "Next"}
+                  {descriptionIndex === 0 ? "What is it?" : "Next"}
                 </Button>
               </HStack>
             </Stack>

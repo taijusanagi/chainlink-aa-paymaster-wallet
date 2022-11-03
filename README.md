@@ -1,22 +1,32 @@
-# AA Capsule
+# Capsule Wallet
 
-!["logo"](./docs/logo.png)
+!["logo"](./packages/app/public/img/logo.png)
 
 ## Description
 
-We are excited to introduce the AA Capsule, a secure wallet manager powered by Account Abstraction and Burner Wallet.
+We are excited to introduce the Capsule Wallet, a secure wallet manager powered by Account Abstraction and Burner Wallet.
 
-The AA Capsule utilizes Burner Wallet to minimize security risks from hacking and provides a better UX for users by Account Abstraction.
+The Capsule Wallet utilizes Burner Wallet to minimize security risks from hacking and provides a better UX for users by Account Abstraction.
 
-With the AA Capsule, you can manage your accounts with ease and confidence, knowing that your asset is safe and secure. So why wait? Get the AA Capsule today!
+With the Capsule Wallet, you can manage your accounts with ease and confidence, knowing that your asset is safe and secure. So why wait? Get the Capsule Wallet today!
 
 ## How it works
 
 ### Security Model
 
-!["security how it works"](./docs/security-how-it-works.png)
+!["concept"](./packages/app/public/img/concept.png)
+
+!["concept"](./packages/app/public/img/concept.png)
 
 ## Deployed Contracts
+
+TBD
+
+## Pitch Deck
+
+https://docs.google.com/presentation/d/1UVNxJmL83hINHz8diepNhaDMs_nqySxBBKR3o0Od2cI/edit?usp=sharing
+
+## Presentation Video
 
 TBD
 

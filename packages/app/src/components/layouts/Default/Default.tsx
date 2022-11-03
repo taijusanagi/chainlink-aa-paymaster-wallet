@@ -25,7 +25,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
           </Flex>
         </Box>
       </Container>
-      <Container maxW="6xl" py="8" flex={1}>
+      <Container maxW="6xl" py="4" flex={1}>
         {children}
       </Container>
       <Container maxW="8xl">
@@ -35,7 +35,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
               😘 Tokyo Web3 Hackathon
             </Link>
           </Text>
-          <Link href="https://github.com/taijusanagi/aa-capsule" target={"_blank"}>
+          <Link href="https://github.com/taijusanagi/capsule-wallet" target={"_blank"}>
             <Icon as={FaGithub} aria-label="github" color="gray.400" />
           </Link>
         </HStack>

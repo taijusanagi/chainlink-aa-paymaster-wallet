@@ -1,5 +1,5 @@
 {
-  "name": "aa-capsule",
+  "name": "capsule-wallet",
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
@@ -12,16 +12,16 @@
   "scripts": {
     "prepare": "husky install",
     "lint": "run-p lint:*",
-    "lint:app": "yarn workspace @aa-capsule/app lint",
-    "lint:contracts": "yarn workspace @aa-capsule/contracts lint",
+    "lint:app": "yarn workspace @capsule-wallet/app lint",
+    "lint:contracts": "yarn workspace @capsule-wallet/contracts lint",
     "test": "run-p test:*",
-    "test:contracts": "yarn workspace @aa-capsule/contracts test",
+    "test:contracts": "yarn workspace @capsule-wallet/contracts test",
     "dev": "run-p dev:*",
-    "dev:app": "yarn workspace @aa-capsule/app dev",
+    "dev:app": "yarn workspace @capsule-wallet/app dev",
     "dev:bundler": "yarn workspace @account-abstraction/bundler bundler --port 3001 --network goerli --mnemonic ../../../../mnemonic.txt --entryPoint 0xfad031b3dbd8048d6f84ae16831d9e27430fe555",
-    "prebuild": "yarn workspace @aa-capsule/contracts build",
+    "prebuild": "yarn workspace @capsule-wallet/contracts build",
     "build": "run-p build:*",
-    "build:app": "yarn workspace @aa-capsule/app build",
+    "build:app": "yarn workspace @capsule-wallet/app build",
     "build:bundler": "yarn workspace @account-abstraction/bundler hardhat-compile"
   },
   "devDependencies": {
