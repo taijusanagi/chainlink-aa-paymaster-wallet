@@ -8,7 +8,6 @@ import {
   Icon,
   Image,
   Input,
-  Link,
   Menu,
   MenuButton,
   MenuDivider,
@@ -29,7 +28,6 @@ import { signTypedData } from "@wagmi/core";
 import WalletConnect from "@walletconnect/client";
 import { convertHexToUtf8 } from "@walletconnect/utils";
 import { NextPage } from "next";
-import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
 import { FiExternalLink } from "react-icons/fi";

@@ -26,6 +26,10 @@ With the Capsule Wallet, you can manage your accounts with ease and confidence, 
 
 https://goerli.etherscan.io/address/0xea6b837f02f6f6f426d9a145d583eedf6ee9e959#code
 
+### NFTDrop for Test
+
+https://goerli.etherscan.io/address/0x2404fd8D03CF696039436A9435f8fa1Af967130D#code
+
 ### CapsuleWallet
 
 - This contract is deployed via the above deployer in the application

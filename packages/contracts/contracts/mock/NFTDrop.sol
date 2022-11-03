@@ -13,4 +13,8 @@ contract NFTDrop is ERC721 {
     totalSupply++;
     _mint(msg.sender, tokenId);
   }
+
+  function tokenURI(uint256) public pure override returns (string memory) {
+    return "https://raw.githubusercontent.com/taijusanagi/capsule-wallet/main/data/metadata.json";
+  }
 }
