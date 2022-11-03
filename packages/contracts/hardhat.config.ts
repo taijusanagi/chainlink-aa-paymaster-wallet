@@ -10,7 +10,7 @@ import rpc from "./config/rpc.json";
 
 dotenv.config();
 
-export const accounts = process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [];
+export const accounts = process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [];
 
 const config: HardhatUserConfig = {
   solidity: {

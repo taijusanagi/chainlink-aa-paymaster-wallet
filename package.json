@@ -5,7 +5,8 @@
   "private": true,
   "workspaces": {
     "packages": [
-      "packages/**/*"
+      "packages/**/*",
+      "submodules/bundler/packages/bundler"
     ]
   },
   "scripts": {
@@ -17,9 +18,11 @@
     "test:contracts": "yarn workspace @aa-capsule/contracts test",
     "dev": "run-p dev:*",
     "dev:app": "yarn workspace @aa-capsule/app dev",
+    "dev:bundler": "yarn workspace @account-abstraction/bundler bundler --port 3001 --network goerli --mnemonic ../../../../mnemonic.txt --entryPoint 0xfad031b3dbd8048d6f84ae16831d9e27430fe555",
     "prebuild": "yarn workspace @aa-capsule/contracts build",
     "build": "run-p build:*",
-    "build:app": "yarn workspace @aa-capsule/app build"
+    "build:app": "yarn workspace @aa-capsule/app build",
+    "build:bundler": "yarn workspace @account-abstraction/bundler hardhat-compile"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",

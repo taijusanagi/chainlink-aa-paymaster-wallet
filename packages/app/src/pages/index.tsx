@@ -135,11 +135,11 @@ const HomePage: NextPage = () => {
           <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={4}>
             <Box w="full" px="6" py="4" boxShadow={"base"} borderRadius="xl" bgColor={"white"}>
               <Stack>
-                <Text fontWeight={"medium"} color="gray.600">
+                <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
                   Capsule Walelt
                 </Text>
                 <Text fontSize="x-small" color="gray.600">
-                  0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8
+                  {capsuleWalletAddress}
                 </Text>
                 <Text color="gray.600">
                   <Text fontSize="4xl" fontWeight={"medium"} as="span" mr="2">
@@ -154,7 +154,7 @@ const HomePage: NextPage = () => {
             <Box w="full" px="6" py="4" boxShadow={"base"} borderRadius="xl" bgColor={"white"}>
               <Stack>
                 <Flex justify={"space-between"}>
-                  <Text fontWeight={"medium"} color="gray.600">
+                  <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
                     Wallet Connect
                   </Text>
                   <Button size="xs" variant={"ghost"} p="0" borderRadius="none" onClick={qrReaderDisclosure.onOpen}>
