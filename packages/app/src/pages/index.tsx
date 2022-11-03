@@ -28,6 +28,7 @@ import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
 
 import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
+import { CHAIN_ID } from "@/config";
 import { useCapsuleWalletAPI } from "@/hooks/useCapsuleWalletApi";
 import { truncate } from "@/lib/utils";
 
@@ -38,13 +39,13 @@ const HomePage: NextPage = () => {
   /*
    * Hooks
    */
-
-  const [capsuleWalletIndex, setCapsuleWalletIndex] = useState(0);
-  const { capsuleWalletAddress } = useCapsuleWalletAPI(capsuleWalletIndex);
+  const { capsuleWalletAddress } = useCapsuleWalletAPI();
   const paymasterDisclosure = useDisclosure();
   const qrReaderDisclosure = useDisclosure();
   const [walletConnectURI, setWalletConnectURI] = useState("");
 
+  const [isWalletConnectConnecting, setIsWalletConnectConnecting] = useState(false);
+  const [isWalletConnectSessionEstablished, setIsWalletConnectSessionEstablished] = useState(false);
   /*
    * Functions
    */
@@ -60,37 +61,54 @@ const HomePage: NextPage = () => {
     console.error(err);
   };
 
-  const connectByWalletConnect = async () => {
-    const connector = new WalletConnect({
-      uri: walletConnectURI,
-    });
-    await connector.createSession();
-    connector.on("session_request", (error, payload) => {
-      console.log("session_request", payload);
-      if (error) {
-        throw error;
+  const connectWithWalletConnect = async () => {
+    setIsWalletConnectConnecting(true);
+    try {
+      let walletConnectConnector = new WalletConnect({
+        uri: walletConnectURI,
+      });
+      if (walletConnectConnector.connected) {
+        console.log("kill previous session and recreate session");
+        await walletConnectConnector.killSession();
+        walletConnectConnector = new WalletConnect({
+          uri: walletConnectURI,
+        });
       }
-      // connector.approveSession({ chainId: network.chain.id, accounts: [contractWalletAddress] });
-    });
-    connector.on("call_request", async (error, payload) => {
-      console.log("call_request", payload);
-      if (error) {
-        throw error;
-      }
-      if (payload.method === "eth_sendTransaction") {
-        console.log("eth_sendTransaction");
-      }
+      await walletConnectConnector.createSession();
+      walletConnectConnector.on("session_request", (error, payload) => {
+        console.log("session_request", payload);
+        if (error) {
+          throw error;
+        }
+        console.log("connect", capsuleWalletAddress);
+        walletConnectConnector.approveSession({ chainId: CHAIN_ID, accounts: [capsuleWalletAddress] });
+        setIsWalletConnectConnecting(false);
+        setIsWalletConnectSessionEstablished(true);
+      });
+      walletConnectConnector.on("call_request", async (error, payload) => {
+        console.log("call_request", payload);
+        if (error) {
+          throw error;
+        }
+        if (payload.method === "eth_sendTransaction") {
+          console.log("eth_sendTransaction");
+        }
 
-      if (payload.method === "personal_sign") {
-        console.log("personal_sign");
-      }
-    });
-    connector.on("disconnect", (error, payload) => {
-      console.log("disconnect", payload);
-      if (error) {
-        throw error;
-      }
-    });
+        if (payload.method === "personal_sign") {
+          console.log("personal_sign");
+        }
+      });
+      walletConnectConnector.on("disconnect", (error, payload) => {
+        console.log("disconnect", payload);
+        if (error) {
+          throw error;
+        }
+      });
+    } catch (e) {
+      console.error(e);
+      setIsWalletConnectConnecting(false);
+      setIsWalletConnectSessionEstablished(false);
+    }
   };
 
   return (
@@ -98,11 +116,11 @@ const HomePage: NextPage = () => {
       <Stack spacing="4">
         <Flex justify={"space-between"}>
           <Stack>
-            <Heading fontWeight={"bold"} size="sm" color="gray.600">
+            <Heading fontWeight={"bold"} size={{ base: "xs", md: "sm" }} color="gray.600">
               AA Capsule
             </Heading>
-            <Text fontSize="xs" color="blue.500">
-              * Please connect Goerli network
+            <Text fontSize={{ base: "x-small", md: "sm" }} color="gray.600">
+              Encapsulated wallet by Account Abstraction
             </Text>
           </Stack>
           <Stack justifyContent={"center"}>
@@ -155,15 +173,33 @@ const HomePage: NextPage = () => {
               <Stack>
                 <Flex justify={"space-between"}>
                   <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
-                    Wallet Connect
+                    WalletConnect
                   </Text>
-                  <Button size="xs" variant={"ghost"} p="0" borderRadius="none" onClick={qrReaderDisclosure.onOpen}>
+                  <Button
+                    size="xs"
+                    variant={"ghost"}
+                    p="0"
+                    borderRadius="none"
+                    onClick={qrReaderDisclosure.onOpen}
+                    disabled={isWalletConnectConnecting || isWalletConnectSessionEstablished}
+                  >
                     <Icon as={AiOutlineQrcode} aria-label="qrcode" color="gray.400" w={6} h={6} cursor="pointer" />
                   </Button>
                 </Flex>
-                <Input type={"text"} value={walletConnectURI} onChange={(e) => setWalletConnectURI(e.target.value)} />
-                <Button colorScheme={"blue"} onClick={connectByWalletConnect}>
-                  Connect
+                <Input
+                  placeholder={"WalletConnect URI"}
+                  type={"text"}
+                  value={walletConnectURI}
+                  onChange={(e) => setWalletConnectURI(e.target.value)}
+                  disabled={isWalletConnectConnecting || isWalletConnectSessionEstablished}
+                />
+                <Button
+                  colorScheme={"blue"}
+                  onClick={connectWithWalletConnect}
+                  isLoading={isWalletConnectConnecting}
+                  disabled={isWalletConnectSessionEstablished}
+                >
+                  {!isWalletConnectSessionEstablished ? "Connect" : "Connected"}
                 </Button>
               </Stack>
             </Box>

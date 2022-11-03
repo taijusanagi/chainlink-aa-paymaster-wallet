@@ -4,11 +4,13 @@ import { ethers } from "ethers";
 import { useEffect, useMemo, useState } from "react";
 import { useSigner } from "wagmi";
 
+import { CHAIN_ID } from "@/config";
+
 import rpc from "../../../../contracts/config/rpc.json";
 import deployments from "../../../../contracts/deployments.json";
 import { CapsuleWalletAPI } from "../../../../contracts/lib/CapsuleWalletAPI";
 
-export const useCapsuleWalletAPI = (index: number) => {
+export const useCapsuleWalletAPI = (index = 0) => {
   const { data: signer } = useSigner();
 
   const [capsuleWalletAPI, setCapsuleWalletAPI] = useState<CapsuleWalletAPI>();
@@ -18,7 +20,7 @@ export const useCapsuleWalletAPI = (index: number) => {
   const [capsuleWalletBalance, setCapsuleWalletBalance] = useState("0");
 
   const bundler = useMemo(() => {
-    return new HttpRpcClient("http://localhost:3001/rpc", deployments.entryPoint, 5);
+    return new HttpRpcClient("http://localhost:3001/rpc", deployments.entryPoint, CHAIN_ID);
   }, []);
 
   const provider = useMemo(() => {
