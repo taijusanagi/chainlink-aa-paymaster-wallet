@@ -14,13 +14,21 @@ With the Capsule Wallet, you can manage your accounts with ease and confidence, 
 
 ### Security Model
 
-!["concept"](./packages/app/public/img/concept.png)
+!["concept"](./docs/concept.png)
 
-!["concept"](./packages/app/public/img/concept.png)
+!["burner-wallet"](./docs/burner-wallet.png)
+
+!["account-abstraction"](./docs/account-abstraction.png)
 
 ## Deployed Contracts
 
-TBD
+### CapsuleWalletDeployer
+
+https://goerli.etherscan.io/address/0xea6b837f02f6f6f426d9a145d583eedf6ee9e959#code
+
+### CapsuleWallet
+
+- This contract is deployed via the above deployer in the application
 
 ## Pitch Deck
 

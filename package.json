@@ -18,7 +18,7 @@
     "test:contracts": "yarn workspace @capsule-wallet/contracts test",
     "dev": "run-p dev:*",
     "dev:app": "yarn workspace @capsule-wallet/app dev",
-    "dev:bundler": "yarn workspace @account-abstraction/bundler bundler --port 3001 --network goerli --mnemonic ../../../../mnemonic.txt --entryPoint 0xfad031b3dbd8048d6f84ae16831d9e27430fe555",
+    "dev:bundler": "yarn workspace @account-abstraction/bundler bundler --port 3001 --network https://goerli.infura.io/v3/95f65ab099894076814e8526f52c9149 --mnemonic ../../../../mnemonic.txt --entryPoint 0xfad031b3dbd8048d6f84ae16831d9e27430fe555 --beneficiary 0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8",
     "prebuild": "yarn workspace @capsule-wallet/contracts build",
     "build": "run-p build:*",
     "build:app": "yarn workspace @capsule-wallet/app build",

@@ -8,6 +8,7 @@ import {
   Icon,
   Image,
   Input,
+  Link,
   Menu,
   MenuButton,
   MenuDivider,
@@ -24,10 +25,14 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { signTypedData } from "@wagmi/core";
 import WalletConnect from "@walletconnect/client";
+import { convertHexToUtf8 } from "@walletconnect/utils";
 import { NextPage } from "next";
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
+import { FiExternalLink } from "react-icons/fi";
 
 import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
@@ -45,9 +50,9 @@ const HomePage: NextPage = () => {
    */
   const { openConnectModal } = useConnectModal();
   const { isWagmiConnected } = useIsWagmiConnected();
-  const { capsuleWalletAddress } = useCapsuleWalletAPI();
+  const { capsuleWalletAddress, capsuleWalletBalance, signMessage, createSignedUserOp, sendUserOpToBundler } =
+    useCapsuleWalletAPI();
 
-  const paymasterDisclosure = useDisclosure();
   const qrReaderDisclosure = useDisclosure();
 
   const [descriptionIndex, setDescriptionIndex] = useState(0);
@@ -60,7 +65,6 @@ const HomePage: NextPage = () => {
   /*
    * Functions
    */
-
   const onQRReaderScan = (result: { text: string }) => {
     if (!result) {
       return;
@@ -92,14 +96,14 @@ const HomePage: NextPage = () => {
           uri: walletConnectURI,
         });
       }
-      await walletConnectConnector.createSession();
       walletConnectConnector.on("session_request", async (error, payload) => {
         console.log("session_request", payload);
         if (error) {
           throw error;
         }
-        console.log("connecting", capsuleWalletAddress);
-        await walletConnectConnector.approveSession({ chainId: CHAIN_ID, accounts: [capsuleWalletAddress] });
+        console.log("approving session");
+        walletConnectConnector.approveSession({ chainId: CHAIN_ID, accounts: [capsuleWalletAddress] });
+        console.log("session approved");
         setIsWalletConnectConnecting(false);
         setIsWalletConnectSessionEstablished(true);
       });
@@ -110,10 +114,46 @@ const HomePage: NextPage = () => {
         }
         if (payload.method === "eth_sendTransaction") {
           console.log("eth_sendTransaction");
+          console.log("creating signed user operation");
+          const op = await createSignedUserOp(
+            payload.params[0].to,
+            payload.params[0].data,
+            payload.params[0].value,
+            payload.params[0].gas
+          );
+          console.log("signed user operation", op);
+          console.log("sending user operation to bunder");
+          const tx = await sendUserOpToBundler(op);
+          console.log("tx", tx);
+          walletConnectConnector.approveRequest({
+            id: payload.id,
+            result: tx,
+          });
         }
-
         if (payload.method === "personal_sign") {
           console.log("personal_sign");
+          const message = convertHexToUtf8(payload.params[0]);
+          console.log("signing message");
+          const signature = await signMessage(message);
+          console.log("signature", signature);
+          walletConnectConnector.approveRequest({
+            id: payload.id,
+            result: signature,
+          });
+        }
+        if (payload.method === "eth_signTypedData") {
+          console.log("eth_signTypedData");
+          console.log("signing message");
+          console.log(payload.params[1]);
+          const { domain, message: value, types } = JSON.parse(payload.params[1]);
+          delete types.EIP712Domain;
+          console.log(domain, types, value);
+          const signature = await signTypedData({ domain, types, value });
+          console.log("signature", signature);
+          walletConnectConnector.approveRequest({
+            id: payload.id,
+            result: signature,
+          });
         }
       });
       walletConnectConnector.on("disconnect", (error, payload) => {
@@ -121,6 +161,8 @@ const HomePage: NextPage = () => {
         if (error) {
           throw error;
         }
+        setIsWalletConnectConnecting(false);
+        setIsWalletConnectSessionEstablished(false);
       });
     } catch (e) {
       console.error(e);
@@ -212,24 +254,13 @@ const HomePage: NextPage = () => {
             <Flex justify={"space-between"}>
               <Stack>
                 <Heading fontWeight={"bold"} size={"xs"} color="gray.600">
-                  AA Capsule
+                  Capsule Wallet
                 </Heading>
                 <Text fontSize={"x-small"} color="gray.600">
                   Encapsulated wallet by Account Abstraction
                 </Text>
               </Stack>
               <Stack justifyContent={"center"}>
-                <Flex justify={"right"}>
-                  <Button borderRadius="md" bgColor={"white"} size="xs" onClick={paymasterDisclosure.onOpen}>
-                    <Text fontSize="xx-small" color="gray.600" textAlign={"right"}>
-                      <Text as="span">Paymaster: </Text>
-                      <Text as="span" fontSize="xs" mr="1">
-                        0.001
-                      </Text>
-                      <Text as="span">ETH</Text>
-                    </Text>
-                  </Button>
-                </Flex>
                 <Menu>
                   <MenuButton as={Button} size="xs" color="gray.600" rightIcon={<AiOutlineDown />}>
                     {truncate(capsuleWalletAddress, 5, 5)}
@@ -237,9 +268,10 @@ const HomePage: NextPage = () => {
                   <MenuList>
                     <MenuItem fontSize="x-small">{capsuleWalletAddress}</MenuItem>
                     <MenuDivider />
-                    <MenuItem fontSize={"xs"} icon={<AiOutlinePlus />}>
-                      Add more
-                    </MenuItem>
+
+                    <Button size={"xs"} leftIcon={<AiOutlinePlus />} variant={"ghost"} w="full" disabled>
+                      Add more (not implemented)
+                    </Button>
                   </MenuList>
                 </Menu>
               </Stack>
@@ -247,29 +279,51 @@ const HomePage: NextPage = () => {
             <Stack spacing="8">
               <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={4}>
                 <Box w="full" px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
-                  <Stack>
+                  <Stack spacing="2">
                     <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
-                      Capsule Wallet
+                      Account
                     </Text>
-                    <Text fontSize="x-small" color="gray.600">
-                      {capsuleWalletAddress}
-                    </Text>
-                    <Text color="gray.600">
-                      <Text fontSize="4xl" fontWeight={"medium"} as="span" mr="2">
-                        0
+                    <Stack spacing="1">
+                      <Text fontWeight={"medium"} fontSize="xs" color="gray.600">
+                        Address
                       </Text>
-                      <Text fontSize="sm" as="span">
-                        ETH
+                      <Text fontSize="x-small" color="gray.600">
+                        {capsuleWalletAddress}
                       </Text>
-                    </Text>
+                    </Stack>
+                    <Stack spacing="1">
+                      <Text fontWeight={"medium"} fontSize="xs" color="gray.600">
+                        Balance:
+                      </Text>
+                      <Text fontSize="xs" color="gray.600">
+                        <Text fontWeight={"bold"} as="span" mr="1">
+                          {capsuleWalletBalance}
+                        </Text>
+                        <Text as="span">ETH</Text>
+                      </Text>
+                    </Stack>
                   </Stack>
                 </Box>
                 <Box w="full" px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                   <Stack>
                     <Flex justify={"space-between"}>
-                      <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
-                        WalletConnect
-                      </Text>
+                      <Box>
+                        <Text fontSize="sm" as="span" fontWeight={"bold"} color="gray.600" mr="1">
+                          WalletConnect
+                        </Text>
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          color={"blue.500"}
+                          p="0"
+                          borderRadius="none"
+                          as="a"
+                          href="https://example.walletconnect.org/"
+                          target={"_blank"}
+                        >
+                          <Icon as={FiExternalLink} w={4} h={4} />
+                        </Button>
+                      </Box>
                       <Button
                         size="xs"
                         variant={"ghost"}
@@ -302,9 +356,9 @@ const HomePage: NextPage = () => {
                 </Box>
               </SimpleGrid>
               <Flex justify={"center"}>
-                <Tabs isFitted maxW="xl" w="full">
+                <Tabs isFitted maxW="xl" w="full" defaultIndex={1}>
                   <TabList mb="1em">
-                    <Tab>Tokens</Tab>
+                    <Tab isDisabled>Tokens</Tab>
                     <Tab>Collectables</Tab>
                   </TabList>
                   <TabPanels>
@@ -314,7 +368,7 @@ const HomePage: NextPage = () => {
                           Tokens
                         </Text>
                         <Text color="gray.600" fontSize="xs">
-                          * Manage tokens
+                          * not implemented for this hackathon
                         </Text>
                       </Stack>
                     </TabPanel>
@@ -333,17 +387,6 @@ const HomePage: NextPage = () => {
               </Flex>
             </Stack>
           </Stack>
-          <GeneralModal
-            isOpen={paymasterDisclosure.isOpen}
-            onClose={paymasterDisclosure.onClose}
-            header="Manage Paymaster"
-          >
-            <Stack>
-              <Text color="gray.600" fontSize="xs">
-                * Manage funds of paymaster
-              </Text>
-            </Stack>
-          </GeneralModal>
           <FullModal isOpen={qrReaderDisclosure.isOpen} onClose={qrReaderDisclosure.onClose}>
             <QrReader delay={500} onError={onQRReaderError} onScan={onQRReaderScan} />
           </FullModal>

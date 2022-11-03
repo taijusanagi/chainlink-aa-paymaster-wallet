@@ -9,6 +9,7 @@ import { CHAIN_ID } from "@/config";
 import rpc from "../../../../contracts/config/rpc.json";
 import deployments from "../../../../contracts/deployments.json";
 import { CapsuleWalletAPI } from "../../../../contracts/lib/CapsuleWalletAPI";
+import { UserOperationStruct } from "../../../../contracts/typechain-types/contracts/CapsuleWallet";
 
 export const useCapsuleWalletAPI = (index = 0) => {
   const { data: signer } = useSigner();
@@ -25,15 +26,26 @@ export const useCapsuleWalletAPI = (index = 0) => {
     return new ethers.providers.JsonRpcProvider(rpc.goerli);
   }, []);
 
-  const signAndSendTxWithBundler = async (target: string, data: string, value: string) => {
-    if (!capsuleWalletAPI) {
-      return;
+  const signMessage = async (message: string) => {
+    if (!signer) {
+      throw Error("signer not defined");
     }
-    const op = await capsuleWalletAPI.createSignedUserOp({
+    return await signer.signMessage(message);
+  };
+
+  const createSignedUserOp = async (target: string, data: string, value: string, gasLimit: string) => {
+    if (!capsuleWalletAPI) {
+      throw Error("capsuleWalletAPI not defined");
+    }
+    return await capsuleWalletAPI.createSignedUserOp({
       target,
       data,
       value,
+      gasLimit,
     });
+  };
+
+  const sendUserOpToBundler = async (op: UserOperationStruct) => {
     return await bundler.sendUserOpToBundler(op);
   };
 
@@ -55,7 +67,8 @@ export const useCapsuleWalletAPI = (index = 0) => {
       const capsuleWalletAddress = await capsuleWalletAPI.getWalletAddress();
       setCapsuleWalletAddress(capsuleWalletAddress);
       const capsuleWalletBalanceBigNumber = await provider.getBalance(capsuleWalletAddress);
-      const capsuleWalletBalance = ethers.utils.formatEther(capsuleWalletBalanceBigNumber);
+      const remainder = capsuleWalletBalanceBigNumber.mod(1e14);
+      const capsuleWalletBalance = ethers.utils.formatEther(capsuleWalletBalanceBigNumber.sub(remainder));
       setCapsuleWalletBalance(capsuleWalletBalance);
     })();
   }, [provider, signer, index]);
@@ -64,6 +77,9 @@ export const useCapsuleWalletAPI = (index = 0) => {
     capsuleWalletAPI,
     capsuleWalletAddress,
     capsuleWalletBalance,
-    signAndSendTxWithBundler,
+    signMessage,
+
+    createSignedUserOp,
+    sendUserOpToBundler,
   };
 };
