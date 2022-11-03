@@ -22,7 +22,7 @@ export const DefaultLayout: React.FC<DefaultLayoutProps> = ({ children }) => {
           </Flex>
         </Box>
       </Container>
-      <Container maxW="6xl" py="4" flex={1}>
+      <Container maxW="6xl" py="6" flex={1}>
         {children}
       </Container>
       <Container maxW="8xl">

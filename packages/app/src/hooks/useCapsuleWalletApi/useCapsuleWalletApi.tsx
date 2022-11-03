@@ -14,8 +14,6 @@ export const useCapsuleWalletAPI = (index = 0) => {
   const { data: signer } = useSigner();
 
   const [capsuleWalletAPI, setCapsuleWalletAPI] = useState<CapsuleWalletAPI>();
-
-  const [signerAddress, setSignerAddress] = useState("");
   const [capsuleWalletAddress, setCapsuleWalletAddress] = useState("");
   const [capsuleWalletBalance, setCapsuleWalletBalance] = useState("0");
 
@@ -53,21 +51,16 @@ export const useCapsuleWalletAPI = (index = 0) => {
         factoryAddress: deployments.factory,
         index,
       });
-
       setCapsuleWalletAPI(capsuleWalletAPI);
-      signer.getAddress().then((signerAddress) => setSignerAddress(signerAddress));
-
       const capsuleWalletAddress = await capsuleWalletAPI.getWalletAddress();
       setCapsuleWalletAddress(capsuleWalletAddress);
-      provider.getBalance(capsuleWalletAddress).then((capsuleWalletBalanceBigNumber) => {
-        const capsuleWalletBalance = ethers.utils.formatEther(capsuleWalletBalanceBigNumber);
-        setCapsuleWalletBalance(capsuleWalletBalance);
-      });
+      const capsuleWalletBalanceBigNumber = await provider.getBalance(capsuleWalletAddress);
+      const capsuleWalletBalance = ethers.utils.formatEther(capsuleWalletBalanceBigNumber);
+      setCapsuleWalletBalance(capsuleWalletBalance);
     })();
   }, [provider, signer, index]);
 
   return {
-    signerAddress,
     capsuleWalletAPI,
     capsuleWalletAddress,
     capsuleWalletBalance,

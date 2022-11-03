@@ -34,6 +34,7 @@ export class CapsuleWalletAPI extends SimpleWalletAPI {
         throw new Error("no factory to get initCode");
       }
     }
+    // TODO: use client calculation for better UX
     return this.factory.getCreate2Address(this.entryPointAddress, await this.owner.getAddress(), this.index);
   }
 

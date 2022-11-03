@@ -9,17 +9,18 @@ import {
 } from "@chakra-ui/react";
 import React from "react";
 
-export interface ModalProps {
+export interface GeneralModalProps {
+  header: string;
   children: React.ReactNode;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export interface GeneralModalProps extends ModalProps {
-  header: string;
+export interface FullModalProps {
+  children: React.ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
 }
-
-export type FullModalProps = ModalProps;
 
 export const GeneralModal: React.FC<GeneralModalProps> = ({ header, children, isOpen, onClose }) => {
   return (
@@ -46,7 +47,7 @@ export const FullModal: React.FC<FullModalProps> = ({ children, isOpen, onClose 
   return (
     <_Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
-      <ModalContent m="2">
+      <ModalContent m="2" bgColor={"inherit"}>
         <ModalCloseButton color={"gray.600"} zIndex="10" />
         {children}
       </ModalContent>

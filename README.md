@@ -15,3 +15,11 @@ We are excited to introduce the AA Capsule, a secure wallet manager powered by A
 ## Deployed Contracts
 
 TBD
+
+## Design Policy
+
+- Should utilize [Chakra UI Pro](https://pro.chakra-ui.com/)
+
+- Should use [Chakra UI blue theme](https://chakra-ui.com/docs/styled-system/theme#blue)
+
+- Should use images from [unDraw](https://undraw.co/)
