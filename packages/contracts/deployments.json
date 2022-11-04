@@ -1,1 +1,5 @@
-{ "entryPoint": "0xfad031b3dbd8048d6f84ae16831d9e27430fe555", "factory": "0xea6b837f02f6f6f426d9a145d583eedf6ee9e959" }
+{
+  "entryPoint": "0xfad031b3dbd8048d6f84ae16831d9e27430fe555",
+  "factory": "0xea6b837f02f6f6f426d9a145d583eedf6ee9e959",
+  "nftDrop": "0x2280c6db79ce3bc7eee56934fd2d8a5ba6b10fda"
+}

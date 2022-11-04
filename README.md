@@ -28,7 +28,7 @@ https://goerli.etherscan.io/address/0xea6b837f02f6f6f426d9a145d583eedf6ee9e959#c
 
 ### NFTDrop for Test
 
-https://goerli.etherscan.io/address/0xf6d9b8494fc557bbd3fbdf2b4f865cb6389de5c9#writeContract
+https://goerli.etherscan.io/address/0x2280c6db79ce3bc7eee56934fd2d8a5ba6b10fda#writeContract
 
 ### CapsuleWallet
 

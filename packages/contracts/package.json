@@ -8,7 +8,7 @@
     "test": "hardhat test",
     "dev": "run-p dev:*",
     "dev:node": "hardhat node",
-    "dev:deploy": "wait-on http://localhost:8545 && hardhat run scripts/deploy-capsule.ts --network localhost",
+    "dev:deploy": "wait-on http://localhost:8545 && hardhat run scripts/deploy-capsule.ts --network localhost && hardhat run scripts/deploy-nft-drop.ts --network localhost",
     "build": "hardhat compile"
   },
   "devDependencies": {
