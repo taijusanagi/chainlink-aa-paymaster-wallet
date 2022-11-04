@@ -8,12 +8,14 @@ import {
   Icon,
   Image,
   Input,
+  Link,
   Menu,
   MenuButton,
   MenuDivider,
   MenuItem,
   MenuList,
   SimpleGrid,
+  Spinner,
   Stack,
   Tab,
   TabList,
@@ -39,6 +41,7 @@ import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
 import { useCapsuleWalletAPI } from "@/hooks/useCapsuleWalletApi";
 import { useIsWagmiConnected } from "@/hooks/useIsWagmiConnected";
+import { analysis } from "@/lib/analysis";
 import { getDroppedNFTsByOwner, getNFTDropMintFunctionData } from "@/lib/contracts";
 import { truncate } from "@/lib/utils";
 
@@ -53,18 +56,24 @@ const HomePage: NextPage = () => {
    */
   const { data: signer } = useSigner();
   const { chain } = useNetwork();
-
   const { openConnectModal } = useConnectModal();
   const { isWagmiConnected } = useIsWagmiConnected();
   const { capsuleWalletAddress, capsuleWalletBalance, bundler, capsuleWalletAPI, getTransactionHashByRequestID } =
     useCapsuleWalletAPI();
-
   const qrReaderDisclosure = useDisclosure();
+  const txAnalysisDisclosure = useDisclosure();
   const [descriptionIndex, setDescriptionIndex] = useState(0);
+  const [txIndex, setTxIndex] = useState(0);
   const [isWalletConnectConnecting, setIsWalletConnectConnecting] = useState(false);
   const [isWalletConnectSessionEstablished, setIsWalletConnectSessionEstablished] = useState(false);
   const [walletConnectURI, setWalletConnectURI] = useState("");
+  const [transactionHash, setTransactionHash] = useState("");
   const [nfts, setNFTs] = useState<NFT[]>([]);
+  const [expected, setExpected] = useState<{ general: string[]; operation: string[]; simulation: string[] }>({
+    general: [],
+    operation: [],
+    simulation: [],
+  });
 
   /*
    * Functions
@@ -122,17 +131,13 @@ const HomePage: NextPage = () => {
         }
         if (payload.method === "eth_sendTransaction") {
           console.log("eth_sendTransaction");
-          const op = await capsuleWalletAPI.createSignedUserOp({
-            target: payload.params[0].to,
-            data: payload.params[0].data,
-            value: payload.params[0].value,
-            gasLimit: payload.params[0].gas,
-          });
-          console.log("user op", op);
-          const requestId = await bundler.sendUserOpToBundler(op);
-          console.log("request sent", requestId);
-          const transactionHash = await getTransactionHashByRequestID(requestId);
-          console.log("transactionHash", transactionHash);
+          await processTx(
+            capsuleWalletAddress,
+            payload.params[0].to,
+            payload.params[0].data,
+            payload.params[0].value,
+            payload.params[0].gas
+          );
           walletConnectConnector.approveRequest({
             id: payload.id,
             result: transactionHash,
@@ -187,19 +192,43 @@ const HomePage: NextPage = () => {
   };
 
   const mintNFT = async () => {
-    if (!bundler || !capsuleWalletAPI) {
+    if (!bundler || !capsuleWalletAPI || !capsuleWalletAddress) {
       return;
     }
     const data = getNFTDropMintFunctionData();
+    const target = deployments.nftDrop;
+    const value = "0";
+    await processTx(capsuleWalletAddress, target, data, value);
+  };
+
+  const processTx = async (from: string, to: string, data: string, value: string, gasLimit?: string) => {
+    if (!capsuleWalletAPI || !bundler) {
+      return;
+    }
+    setTxIndex(0);
+    txAnalysisDisclosure.onOpen();
+    const result = await analysis(from, to, data, value);
+    setExpected(result);
+    setTxIndex(1);
     const op = await capsuleWalletAPI.createSignedUserOp({
       target: deployments.nftDrop,
       data,
+      value,
+      gasLimit,
     });
     console.log("user op", op);
     const requestId = await bundler.sendUserOpToBundler(op);
+    setTxIndex(2);
     console.log("request sent", requestId);
     const transactionHash = await getTransactionHashByRequestID(requestId);
     console.log("transactionHash", transactionHash);
+    setTransactionHash(transactionHash);
+    setTxIndex(3);
+  };
+
+  const clearTxModal = () => {
+    setTxIndex(0);
+    txAnalysisDisclosure.onClose();
   };
 
   useEffect(() => {
@@ -438,6 +467,75 @@ const HomePage: NextPage = () => {
           <FullModal isOpen={qrReaderDisclosure.isOpen} onClose={qrReaderDisclosure.onClose}>
             <QrReader delay={500} onError={onQRReaderError} onScan={onQRReaderScan} />
           </FullModal>
+          <GeneralModal isOpen={txAnalysisDisclosure.isOpen} onClose={clearTxModal} header="Tx Analysis">
+            {txIndex === 0 && (
+              <Center h="200">
+                <Spinner />
+              </Center>
+            )}
+            {txIndex === 1 && (
+              <Stack spacing="4">
+                <Text fontSize="sm" fontWeight={"bold"} color="gray.600">
+                  Tx General Info
+                </Text>
+                <Stack>
+                  {expected.general.map((_txt, i) => {
+                    return (
+                      <Text key={`analysis_general_${i}`} fontSize="xs">
+                        {_txt}
+                      </Text>
+                    );
+                  })}
+                </Stack>
+                <Stack>
+                  <Text fontSize="sm" fontWeight={"bold"} color="gray.600">
+                    Detail
+                  </Text>
+                  {expected.operation.map((_txt, i) => {
+                    return (
+                      <Text key={`analysis_operation_${i}`} fontSize="xs" fontWeight={"bold"}>
+                        {_txt}
+                      </Text>
+                    );
+                  })}
+                </Stack>
+                <Box px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
+                  {expected.simulation.map((_txt, i) => {
+                    return (
+                      <Text key={`analysis_simulation_${i}`} fontSize="x-small" color="gray.600">
+                        {_txt}
+                      </Text>
+                    );
+                  })}
+                </Box>
+              </Stack>
+            )}
+            {txIndex === 2 && (
+              <Center h="200">
+                <Spinner />
+              </Center>
+            )}
+            {txIndex === 3 && (
+              <Stack>
+                <Heading fontWeight={"bold"} size={"xs"} color="gray.600" textAlign={"center"}>
+                  Congratulation
+                </Heading>
+                <Stack>
+                  <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
+                    You sent a secure tx with Capsule Wallet
+                  </Text>
+                  <Text align={"center"} fontSize="xs">
+                    <Link href={`https://goerli.etherscan.io/tx/${transactionHash}`} color="blue.500" target={"_blank"}>
+                      Exproler
+                    </Link>
+                  </Text>
+                  <Center py="8">
+                    <Image h="200" src="./img/security.svg" alt="security" objectFit={"contain"} />
+                  </Center>
+                </Stack>
+              </Stack>
+            )}
+          </GeneralModal>
         </Box>
       )}
     </DefaultLayout>

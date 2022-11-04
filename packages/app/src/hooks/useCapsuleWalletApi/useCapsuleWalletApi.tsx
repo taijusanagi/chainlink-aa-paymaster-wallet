@@ -52,7 +52,7 @@ export const useCapsuleWalletAPI = (index = 0) => {
     const provider = signer.provider;
     const entryPoint = EntryPoint__factory.connect(deployments.entryPoint, signer.provider);
     const filter = entryPoint.filters.UserOperationEvent(requestId);
-    const transactionHash = await new Promise((resolve) => {
+    const transactionHash: string = await new Promise((resolve) => {
       const intervalId = setInterval(async () => {
         console.log("fetching request status...");
         const logs = await provider.getLogs(filter);
