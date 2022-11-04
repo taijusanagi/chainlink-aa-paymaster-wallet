@@ -51,9 +51,6 @@ import deployments from "../../../contracts/deployments.json";
 const QrReader = require("react-qr-scanner");
 
 const HomePage: NextPage = () => {
-  /*
-   * Hooks
-   */
   const { data: signer } = useSigner();
   const { chain } = useNetwork();
   const { openConnectModal } = useConnectModal();
@@ -75,9 +72,6 @@ const HomePage: NextPage = () => {
     simulation: [],
   });
 
-  /*
-   * Functions
-   */
   const onQRReaderScan = (result: { text: string }) => {
     if (!result) {
       return;
@@ -205,25 +199,30 @@ const HomePage: NextPage = () => {
     if (!capsuleWalletAPI || !bundler) {
       return;
     }
-    setTxIndex(0);
-    txAnalysisDisclosure.onOpen();
-    const result = await analysis(from, to, data, value);
-    setExpected(result);
-    setTxIndex(1);
-    const op = await capsuleWalletAPI.createSignedUserOp({
-      target: deployments.nftDrop,
-      data,
-      value,
-      gasLimit,
-    });
-    console.log("user op", op);
-    const requestId = await bundler.sendUserOpToBundler(op);
-    setTxIndex(2);
-    console.log("request sent", requestId);
-    const transactionHash = await getTransactionHashByRequestID(requestId);
-    console.log("transactionHash", transactionHash);
-    setTransactionHash(transactionHash);
-    setTxIndex(3);
+    try {
+      setTxIndex(0);
+      txAnalysisDisclosure.onOpen();
+      const result = await analysis(from, to, data, value);
+      setExpected(result);
+      setTxIndex(1);
+      const op = await capsuleWalletAPI.createSignedUserOp({
+        target: deployments.nftDrop,
+        data,
+        value,
+        gasLimit,
+      });
+      console.log("user op", op);
+      const requestId = await bundler.sendUserOpToBundler(op);
+      setTxIndex(2);
+      console.log("request sent", requestId);
+      const transactionHash = await getTransactionHashByRequestID(requestId);
+      console.log("transactionHash", transactionHash);
+      setTransactionHash(transactionHash);
+      setTxIndex(3);
+    } catch (e) {
+      console.error(e);
+      clearTxModal();
+    }
   };
 
   const clearTxModal = () => {
@@ -467,10 +466,10 @@ const HomePage: NextPage = () => {
           <FullModal isOpen={qrReaderDisclosure.isOpen} onClose={qrReaderDisclosure.onClose}>
             <QrReader delay={500} onError={onQRReaderError} onScan={onQRReaderScan} />
           </FullModal>
-          <GeneralModal isOpen={txAnalysisDisclosure.isOpen} onClose={clearTxModal} header="Tx Analysis">
+          <GeneralModal isOpen={txAnalysisDisclosure.isOpen} header="Tx Analysis">
             {txIndex === 0 && (
               <Center h="200">
-                <Spinner />
+                <Spinner color="blue.500" />
               </Center>
             )}
             {txIndex === 1 && (
@@ -524,14 +523,15 @@ const HomePage: NextPage = () => {
                   <Text align={"center"} fontSize="xs" fontWeight={"medium"} color="gray.600">
                     You sent a secure tx with Capsule Wallet
                   </Text>
-                  <Text align={"center"} fontSize="xs">
+                  <Text align={"center"} fontSize="x-small">
                     <Link href={`https://goerli.etherscan.io/tx/${transactionHash}`} color="blue.500" target={"_blank"}>
-                      Exproler
+                      Etherscan
                     </Link>
                   </Text>
                   <Center py="8">
                     <Image h="200" src="./img/security.svg" alt="security" objectFit={"contain"} />
                   </Center>
+                  <Button onClick={clearTxModal}>Close</Button>
                 </Stack>
               </Stack>
             )}

@@ -13,7 +13,7 @@ export interface GeneralModalProps {
   header: string;
   children: React.ReactNode;
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 export interface FullModalProps {
@@ -24,7 +24,16 @@ export interface FullModalProps {
 
 export const GeneralModal: React.FC<GeneralModalProps> = ({ header, children, isOpen, onClose }) => {
   return (
-    <_Modal isOpen={isOpen} onClose={onClose} isCentered>
+    <_Modal
+      isOpen={isOpen}
+      onClose={
+        onClose ||
+        (() => {
+          console.log("this modal does not allow closing");
+        })
+      }
+      isCentered
+    >
       <ModalOverlay />
       <ModalContent m="2">
         <ModalHeader>
@@ -33,7 +42,7 @@ export const GeneralModal: React.FC<GeneralModalProps> = ({ header, children, is
               {header}
             </Text>
           )}
-          <ModalCloseButton color={"gray.600"} />
+          {onClose && <ModalCloseButton color={"gray.600"} />}
         </ModalHeader>
         <ModalBody px="6" pt="2" pb="8">
           {children}
