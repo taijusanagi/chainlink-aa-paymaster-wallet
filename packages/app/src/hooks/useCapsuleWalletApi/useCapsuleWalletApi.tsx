@@ -14,7 +14,7 @@ export const useCapsuleWalletAPI = (index = 0) => {
 
   const [bundler, setBundler] = useState<HttpRpcClient>();
   const [capsuleWalletAPI, setCapsuleWalletAPI] = useState<CapsuleWalletAPI>();
-  const [capsuleWalletAddress, setCapsuleWalletAddress] = useState("");
+  const [capsuleWalletAddress, setCapsuleWalletAddress] = useState<string>();
   const [capsuleWalletBalance, setCapsuleWalletBalance] = useState("0");
 
   useEffect(() => {

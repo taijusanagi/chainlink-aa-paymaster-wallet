@@ -28,16 +28,17 @@ import { signTypedData } from "@wagmi/core";
 import WalletConnect from "@walletconnect/client";
 import { convertHexToUtf8 } from "@walletconnect/utils";
 import { NextPage } from "next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
 import { FiExternalLink } from "react-icons/fi";
+import { NFT } from "types/nft";
 import { useNetwork, useSigner } from "wagmi";
 
 import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
 import { useCapsuleWalletAPI } from "@/hooks/useCapsuleWalletApi";
 import { useIsWagmiConnected } from "@/hooks/useIsWagmiConnected";
-import { getNFTDropMintFunctionData } from "@/lib/contracts";
+import { getDroppedNFTsByOwner, getNFTDropMintFunctionData } from "@/lib/contracts";
 import { truncate } from "@/lib/utils";
 
 import deployments from "../../../contracts/deployments.json";
@@ -58,13 +59,11 @@ const HomePage: NextPage = () => {
     useCapsuleWalletAPI();
 
   const qrReaderDisclosure = useDisclosure();
-
   const [descriptionIndex, setDescriptionIndex] = useState(0);
-
   const [isWalletConnectConnecting, setIsWalletConnectConnecting] = useState(false);
   const [isWalletConnectSessionEstablished, setIsWalletConnectSessionEstablished] = useState(false);
-
   const [walletConnectURI, setWalletConnectURI] = useState("");
+  const [nfts, setNFTs] = useState<NFT[]>([]);
 
   /*
    * Functions
@@ -88,7 +87,7 @@ const HomePage: NextPage = () => {
   };
 
   const connectWithWalletConnect = async (walletConnectURI: string) => {
-    if (!chain || !signer || !bundler || !capsuleWalletAPI) {
+    if (!chain || !signer || !bundler || !capsuleWalletAPI || !capsuleWalletAddress) {
       return;
     }
 
@@ -129,9 +128,8 @@ const HomePage: NextPage = () => {
             gasLimit: payload.params[0].gas,
           });
           console.log("user op", op);
-          console.log("sending user op to bundler");
           const requestId = await bundler.sendUserOpToBundler(op);
-          console.log("requestId", requestId);
+          console.log("request sent", requestId);
           const transactionHash = await getTransactionHashByRequestID(requestId);
           console.log("transactionHash", transactionHash);
           walletConnectConnector.approveRequest({
@@ -190,12 +188,20 @@ const HomePage: NextPage = () => {
       data,
     });
     console.log("user op", op);
-    console.log("sending user op to bundler");
     const requestId = await bundler.sendUserOpToBundler(op);
-    console.log("requestId", requestId);
+    console.log("request sent", requestId);
     const transactionHash = await getTransactionHashByRequestID(requestId);
     console.log("transactionHash", transactionHash);
   };
+
+  useEffect(() => {
+    if (!signer || !signer.provider || !capsuleWalletAddress) {
+      return;
+    }
+    getDroppedNFTsByOwner(signer.provider, capsuleWalletAddress).then((nfts) => {
+      setNFTs(nfts);
+    });
+  }, [signer, capsuleWalletAddress]);
 
   return (
     <DefaultLayout>
@@ -302,7 +308,7 @@ const HomePage: NextPage = () => {
               </Stack>
             </Flex>
             <Stack spacing="4">
-              <SimpleGrid columns={{ sm: 1, md: 2 }} spacing={4}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <Box w="full" px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                   <Stack spacing="2">
                     <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
@@ -399,10 +405,22 @@ const HomePage: NextPage = () => {
                         <Text as="span" fontWeight={"bold"} fontSize="sm" color="gray.600">
                           Collectables
                         </Text>
-                        <Button variant={"ghost"} color="blue.500" size="xs" onClick={mintNFT}>
-                          Mint NFT
-                        </Button>
+                        <HStack>
+                          <Button size="xs" onClick={mintNFT}>
+                            Mint
+                          </Button>
+                          <Button size="xs" onClick={transferAll}>
+                            Transfer all
+                          </Button>
+                        </HStack>
                       </Flex>
+                      <SimpleGrid py="8" columns={{ base: 2, md: 4 }} spacing={4}>
+                        {nfts.map((nft) => (
+                          <Box key={nft.tokenId}>
+                            <Image src={nft.image} alt="image" />
+                          </Box>
+                        ))}
+                      </SimpleGrid>
                     </TabPanel>
                   </TabPanels>
                 </Tabs>
