@@ -12,8 +12,6 @@ With the Capsule Wallet, you can manage your accounts with ease and confidence, 
 
 ## How it works
 
-### Security Model
-
 !["concept"](./docs/concept.png)
 
 !["burner-wallet"](./docs/burner-wallet.png)

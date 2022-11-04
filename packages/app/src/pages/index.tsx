@@ -27,6 +27,7 @@ import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { signTypedData } from "@wagmi/core";
 import WalletConnect from "@walletconnect/client";
 import { convertHexToUtf8 } from "@walletconnect/utils";
+import { ethers } from "ethers";
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
@@ -178,6 +179,13 @@ const HomePage: NextPage = () => {
     }
   };
 
+  const deposit = async () => {
+    if (!signer || !capsuleWalletAddress) {
+      return;
+    }
+    signer.sendTransaction({ to: capsuleWalletAddress, value: ethers.utils.parseEther("0.2") });
+  };
+
   const mintNFT = async () => {
     if (!bundler || !capsuleWalletAPI) {
       return;
@@ -311,9 +319,14 @@ const HomePage: NextPage = () => {
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                 <Box w="full" px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                   <Stack spacing="2">
-                    <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
-                      Account
-                    </Text>
+                    <Flex justify={"space-between"}>
+                      <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
+                        Account
+                      </Text>
+                      <Button color={"blue.500"} variant="ghost" size="xs" onClick={deposit}>
+                        Deposit
+                      </Button>
+                    </Flex>
                     <Stack spacing="1">
                       <Text fontWeight={"medium"} fontSize="xs" color="gray.600">
                         Address
@@ -386,41 +399,36 @@ const HomePage: NextPage = () => {
               <Flex justify={"center"}>
                 <Tabs isFitted maxW="xl" w="full" defaultIndex={1}>
                   <TabList mb="1em">
-                    <Tab>Tokens</Tab>
+                    <Tab isDisabled>Tokens</Tab>
                     <Tab>Collectables</Tab>
                   </TabList>
                   <TabPanels>
-                    <TabPanel px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
-                      <Flex justify={"space-between"}>
-                        <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
-                          Tokens
-                        </Text>
-                        <Text color="gray.600" fontSize="xs">
-                          * not implemented for this hackathon
-                        </Text>
-                      </Flex>
-                    </TabPanel>
+                    <TabPanel />
                     <TabPanel px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                       <Flex justify={"space-between"}>
                         <Text as="span" fontWeight={"bold"} fontSize="sm" color="gray.600">
                           Collectables
                         </Text>
                         <HStack>
-                          <Button size="xs" onClick={mintNFT}>
+                          <Button color={"blue.500"} variant="ghost" size="xs" onClick={mintNFT}>
                             Mint
-                          </Button>
-                          <Button size="xs" onClick={transferAll}>
-                            Transfer all
                           </Button>
                         </HStack>
                       </Flex>
-                      <SimpleGrid py="8" columns={{ base: 2, md: 4 }} spacing={4}>
-                        {nfts.map((nft) => (
-                          <Box key={nft.tokenId}>
-                            <Image src={nft.image} alt="image" />
-                          </Box>
-                        ))}
-                      </SimpleGrid>
+                      {nfts.length === 0 && (
+                        <Text py="2" fontSize="xs" color="gray.600">
+                          * Please mint NFTs to Capsule Wallet for the demo
+                        </Text>
+                      )}
+                      {nfts.length > 0 && (
+                        <SimpleGrid py="8" px="4" columns={{ base: 2, md: 4 }} spacing={6}>
+                          {nfts.map((nft) => (
+                            <Box key={nft.tokenId}>
+                              <Image src={nft.image} alt="image" />
+                            </Box>
+                          ))}
+                        </SimpleGrid>
+                      )}
                     </TabPanel>
                   </TabPanels>
                 </Tabs>

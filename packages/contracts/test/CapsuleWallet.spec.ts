@@ -40,7 +40,6 @@ describe("CapsuleWallet", () => {
     beneficiary = await signer.getAddress();
     recipient = await new SampleRecipient__factory(signer).deploy();
     nftDrop = await new NFTDrop__factory(signer).deploy();
-
     factoryAddress = await DeterministicDeployer.deploy(CapsuleWalletDeployer__factory.bytecode);
     api = new CapsuleWalletAPI({
       provider,
@@ -140,6 +139,14 @@ describe("CapsuleWallet", () => {
     });
 
     it("nftDrop", async function () {
+      const op = await api.createSignedUserOp({
+        target: nftDrop.address,
+        data: nftDrop.interface.encodeFunctionData("mint"),
+      });
+      await expect(entryPoint.handleOps([op], beneficiary));
+    });
+
+    it("paymaster", async function () {
       const op = await api.createSignedUserOp({
         target: nftDrop.address,
         data: nftDrop.interface.encodeFunctionData("mint"),

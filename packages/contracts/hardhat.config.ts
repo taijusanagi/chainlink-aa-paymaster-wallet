@@ -10,7 +10,6 @@ import { HardhatUserConfig } from "hardhat/config";
 import rpc from "./config/rpc.json";
 
 dotenv.config();
-
 const mnemonic = fs.readFileSync("../../mnemonic.txt", "ascii").trim();
 
 const config: HardhatUserConfig = {
@@ -33,6 +32,9 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       chainId: 1337,
+      accounts: {
+        mnemonic,
+      },
     },
     goerli: {
       url: rpc.goerli,
