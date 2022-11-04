@@ -30,13 +30,17 @@ import { convertHexToUtf8 } from "@walletconnect/utils";
 import { NextPage } from "next";
 import { useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
-import { useNetwork } from "wagmi";
+import { FiExternalLink } from "react-icons/fi";
+import { useNetwork, useSigner } from "wagmi";
 
 import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
 import { useCapsuleWalletAPI } from "@/hooks/useCapsuleWalletApi";
 import { useIsWagmiConnected } from "@/hooks/useIsWagmiConnected";
+import { getNFTDropMintFunctionData } from "@/lib/contracts";
 import { truncate } from "@/lib/utils";
+
+import deployments from "../../../contracts/deployments.json";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const QrReader = require("react-qr-scanner");
@@ -45,12 +49,12 @@ const HomePage: NextPage = () => {
   /*
    * Hooks
    */
-
+  const { data: signer } = useSigner();
   const { chain } = useNetwork();
 
   const { openConnectModal } = useConnectModal();
   const { isWagmiConnected } = useIsWagmiConnected();
-  const { capsuleWalletAddress, capsuleWalletBalance, signMessage, createSignedUserOp, sendUserOpToBundler } =
+  const { capsuleWalletAddress, capsuleWalletBalance, bundler, capsuleWalletAPI, getTransactionHashByRequestID } =
     useCapsuleWalletAPI();
 
   const qrReaderDisclosure = useDisclosure();
@@ -84,7 +88,7 @@ const HomePage: NextPage = () => {
   };
 
   const connectWithWalletConnect = async (walletConnectURI: string) => {
-    if (!chain) {
+    if (!chain || !signer || !bundler || !capsuleWalletAPI) {
       return;
     }
 
@@ -118,27 +122,28 @@ const HomePage: NextPage = () => {
         }
         if (payload.method === "eth_sendTransaction") {
           console.log("eth_sendTransaction");
-          console.log("creating signed user operation");
-          const op = await createSignedUserOp(
-            payload.params[0].to,
-            payload.params[0].data,
-            payload.params[0].value,
-            payload.params[0].gas
-          );
-          console.log("signed user operation", op);
-          console.log("sending user operation to bunder");
-          const tx = await sendUserOpToBundler(op);
-          console.log("tx", tx);
+          const op = await capsuleWalletAPI.createSignedUserOp({
+            target: payload.params[0].to,
+            data: payload.params[0].data,
+            value: payload.params[0].value,
+            gasLimit: payload.params[0].gas,
+          });
+          console.log("user op", op);
+          console.log("sending user op to bundler");
+          const requestId = await bundler.sendUserOpToBundler(op);
+          console.log("requestId", requestId);
+          const transactionHash = await getTransactionHashByRequestID(requestId);
+          console.log("transactionHash", transactionHash);
           walletConnectConnector.approveRequest({
             id: payload.id,
-            result: tx,
+            result: transactionHash,
           });
         }
         if (payload.method === "personal_sign") {
           console.log("personal_sign");
           const message = convertHexToUtf8(payload.params[0]);
           console.log("signing message");
-          const signature = await signMessage(message);
+          const signature = await signer.signMessage(message);
           console.log("signature", signature);
           walletConnectConnector.approveRequest({
             id: payload.id,
@@ -173,6 +178,23 @@ const HomePage: NextPage = () => {
       setIsWalletConnectConnecting(false);
       setIsWalletConnectSessionEstablished(false);
     }
+  };
+
+  const mintNFT = async () => {
+    if (!bundler || !capsuleWalletAPI) {
+      return;
+    }
+    const data = getNFTDropMintFunctionData();
+    const op = await capsuleWalletAPI.createSignedUserOp({
+      target: deployments.nftDrop,
+      data,
+    });
+    console.log("user op", op);
+    console.log("sending user op to bundler");
+    const requestId = await bundler.sendUserOpToBundler(op);
+    console.log("requestId", requestId);
+    const transactionHash = await getTransactionHashByRequestID(requestId);
+    console.log("transactionHash", transactionHash);
   };
 
   return (
@@ -272,7 +294,6 @@ const HomePage: NextPage = () => {
                   <MenuList>
                     <MenuItem fontSize="x-small">{capsuleWalletAddress}</MenuItem>
                     <MenuDivider />
-
                     <Button size={"xs"} leftIcon={<AiOutlinePlus />} variant={"ghost"} w="full" disabled>
                       Add (not implemented)
                     </Button>
@@ -311,11 +332,20 @@ const HomePage: NextPage = () => {
                 <Box w="full" px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
                   <Stack>
                     <Flex justify={"space-between"}>
-                      <Box>
+                      <HStack justifyContent={"center"}>
                         <Text fontSize="sm" as="span" fontWeight={"bold"} color="gray.600">
                           WalletConnect
                         </Text>
-                      </Box>
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          as={"a"}
+                          href="https://example.walletconnect.org/"
+                          target="_blank"
+                        >
+                          <Icon as={FiExternalLink} aria-label="external-link" color="blue.500" w={4} h={4} />
+                        </Button>
+                      </HStack>
                       <Button
                         size="xs"
                         variant={"ghost"}
@@ -355,21 +385,24 @@ const HomePage: NextPage = () => {
                   </TabList>
                   <TabPanels>
                     <TabPanel px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
-                      <Stack>
+                      <Flex justify={"space-between"}>
                         <Text fontWeight={"bold"} fontSize="sm" color="gray.600">
                           Tokens
                         </Text>
                         <Text color="gray.600" fontSize="xs">
                           * not implemented for this hackathon
                         </Text>
-                      </Stack>
+                      </Flex>
                     </TabPanel>
                     <TabPanel px="6" py="4" boxShadow={"md"} borderRadius="xl" bgColor={"white"}>
-                      <Stack>
+                      <Flex justify={"space-between"}>
                         <Text as="span" fontWeight={"bold"} fontSize="sm" color="gray.600">
                           Collectables
                         </Text>
-                      </Stack>
+                        <Button variant={"ghost"} color="blue.500" size="xs" onClick={mintNFT}>
+                          Mint NFT
+                        </Button>
+                      </Flex>
                     </TabPanel>
                   </TabPanels>
                 </Tabs>

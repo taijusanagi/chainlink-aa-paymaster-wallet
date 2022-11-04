@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@account-abstraction/contracts": "^0.2.0",
     "@chakra-ui/pro-theme": "^0.0.57",
     "@chakra-ui/react": "^2.3.6",
     "@emotion/react": "^11",

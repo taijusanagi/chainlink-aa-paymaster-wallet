@@ -17,7 +17,7 @@ import { ethers } from "hardhat";
 
 import { CapsuleWalletAPI } from "../lib/CapsuleWalletAPI";
 import { DeterministicDeployer } from "../lib/infinitism/DeterministicDeployer";
-import { CapsuleWalletDeployer__factory } from "../typechain-types";
+import { CapsuleWalletDeployer__factory, NFTDrop, NFTDrop__factory } from "../typechain-types";
 
 const provider = ethers.provider;
 
@@ -29,6 +29,7 @@ describe("CapsuleWallet", () => {
   let entryPoint: EntryPoint;
   let beneficiary: string;
   let recipient: SampleRecipient;
+  let nftDrop: NFTDrop;
   let factoryAddress: string;
   let walletAddress: string;
   let walletDeployed = false;
@@ -38,6 +39,8 @@ describe("CapsuleWallet", () => {
     entryPoint = await new EntryPoint__factory(signer).deploy(1, 1);
     beneficiary = await signer.getAddress();
     recipient = await new SampleRecipient__factory(signer).deploy();
+    nftDrop = await new NFTDrop__factory(signer).deploy();
+
     factoryAddress = await DeterministicDeployer.deploy(CapsuleWalletDeployer__factory.bytecode);
     api = new CapsuleWalletAPI({
       provider,
@@ -134,6 +137,14 @@ describe("CapsuleWallet", () => {
       const salt = 0;
       const calculatedAddress = await factory.getCreate2Address(entryPoint.address, owner.address, salt);
       expect(walletAddress).to.eq(calculatedAddress);
+    });
+
+    it("nftDrop", async function () {
+      const op = await api.createSignedUserOp({
+        target: nftDrop.address,
+        data: nftDrop.interface.encodeFunctionData("mint"),
+      });
+      await expect(entryPoint.handleOps([op], beneficiary));
     });
   });
 });
