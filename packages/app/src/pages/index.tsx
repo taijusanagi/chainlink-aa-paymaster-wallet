@@ -30,11 +30,10 @@ import { convertHexToUtf8 } from "@walletconnect/utils";
 import { NextPage } from "next";
 import { useState } from "react";
 import { AiOutlineDown, AiOutlinePlus, AiOutlineQrcode } from "react-icons/ai";
-import { FiExternalLink } from "react-icons/fi";
+import { useNetwork } from "wagmi";
 
 import { FullModal, GeneralModal } from "@/components/elements/Modal";
 import { DefaultLayout } from "@/components/layouts/Default";
-import { CHAIN_ID } from "@/config";
 import { useCapsuleWalletAPI } from "@/hooks/useCapsuleWalletApi";
 import { useIsWagmiConnected } from "@/hooks/useIsWagmiConnected";
 import { truncate } from "@/lib/utils";
@@ -46,6 +45,9 @@ const HomePage: NextPage = () => {
   /*
    * Hooks
    */
+
+  const { chain } = useNetwork();
+
   const { openConnectModal } = useConnectModal();
   const { isWagmiConnected } = useIsWagmiConnected();
   const { capsuleWalletAddress, capsuleWalletBalance, signMessage, createSignedUserOp, sendUserOpToBundler } =
@@ -82,6 +84,10 @@ const HomePage: NextPage = () => {
   };
 
   const connectWithWalletConnect = async (walletConnectURI: string) => {
+    if (!chain) {
+      return;
+    }
+
     setIsWalletConnectConnecting(true);
     try {
       let walletConnectConnector = new WalletConnect({
@@ -100,7 +106,7 @@ const HomePage: NextPage = () => {
           throw error;
         }
         console.log("approving session");
-        walletConnectConnector.approveSession({ chainId: CHAIN_ID, accounts: [capsuleWalletAddress] });
+        walletConnectConnector.approveSession({ chainId: chain.id, accounts: [capsuleWalletAddress] });
         console.log("session approved");
         setIsWalletConnectConnecting(false);
         setIsWalletConnectSessionEstablished(true);

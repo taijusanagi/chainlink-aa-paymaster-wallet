@@ -2,29 +2,27 @@
 import { HttpRpcClient } from "@account-abstraction/sdk/dist/src/HttpRpcClient";
 import { ethers } from "ethers";
 import { useEffect, useMemo, useState } from "react";
-import { useSigner } from "wagmi";
+import { useNetwork, useSigner } from "wagmi";
 
-import { CHAIN_ID } from "@/config";
-
-import rpc from "../../../../contracts/config/rpc.json";
 import deployments from "../../../../contracts/deployments.json";
 import { CapsuleWalletAPI } from "../../../../contracts/lib/CapsuleWalletAPI";
 import { UserOperationStruct } from "../../../../contracts/typechain-types/contracts/CapsuleWallet";
 
 export const useCapsuleWalletAPI = (index = 0) => {
   const { data: signer } = useSigner();
+  const { chain } = useNetwork();
 
   const [capsuleWalletAPI, setCapsuleWalletAPI] = useState<CapsuleWalletAPI>();
   const [capsuleWalletAddress, setCapsuleWalletAddress] = useState("");
   const [capsuleWalletBalance, setCapsuleWalletBalance] = useState("0");
 
   const bundler = useMemo(() => {
-    return new HttpRpcClient("http://localhost:3001/rpc", deployments.entryPoint, CHAIN_ID);
-  }, []);
-
-  const provider = useMemo(() => {
-    return new ethers.providers.JsonRpcProvider(rpc.goerli);
-  }, []);
+    if (!chain) {
+      return;
+    }
+    const uri = chain.id === 1337 ? "http://localhost:3001/rpc" : "http://localhost:3002/rpc";
+    return new HttpRpcClient(uri, deployments.entryPoint, chain.id);
+  }, [chain]);
 
   const signMessage = async (message: string) => {
     if (!signer) {
@@ -46,16 +44,20 @@ export const useCapsuleWalletAPI = (index = 0) => {
   };
 
   const sendUserOpToBundler = async (op: UserOperationStruct) => {
+    if (!bundler) {
+      throw Error("bundler not defined");
+    }
     return await bundler.sendUserOpToBundler(op);
   };
 
   useEffect(() => {
     (async () => {
-      if (!signer) {
+      if (!chain || !signer || !signer.provider) {
         setCapsuleWalletAPI(undefined);
         setCapsuleWalletAddress("");
         return;
       }
+      const provider = signer.provider;
       const capsuleWalletAPI = new CapsuleWalletAPI({
         provider,
         entryPointAddress: deployments.entryPoint,
@@ -71,14 +73,13 @@ export const useCapsuleWalletAPI = (index = 0) => {
       const capsuleWalletBalance = ethers.utils.formatEther(capsuleWalletBalanceBigNumber.sub(remainder));
       setCapsuleWalletBalance(capsuleWalletBalance);
     })();
-  }, [provider, signer, index]);
+  }, [chain, signer, index]);
 
   return {
     capsuleWalletAPI,
     capsuleWalletAddress,
     capsuleWalletBalance,
     signMessage,
-
     createSignedUserOp,
     sendUserOpToBundler,
   };

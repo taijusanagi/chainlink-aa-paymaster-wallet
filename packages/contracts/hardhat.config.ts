@@ -4,13 +4,14 @@ import "@nomiclabs/hardhat-etherscan";
 import "@typechain/hardhat";
 
 import * as dotenv from "dotenv";
+import fs from "fs";
 import { HardhatUserConfig } from "hardhat/config";
 
 import rpc from "./config/rpc.json";
 
 dotenv.config();
 
-export const accounts = process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [];
+const mnemonic = fs.readFileSync("../../mnemonic.txt", "ascii").trim();
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -30,9 +31,14 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
+    hardhat: {
+      chainId: 1337,
+    },
     goerli: {
       url: rpc.goerli,
-      accounts,
+      accounts: {
+        mnemonic,
+      },
     },
   },
   etherscan: {

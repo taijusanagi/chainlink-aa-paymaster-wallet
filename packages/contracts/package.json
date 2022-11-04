@@ -4,9 +4,12 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+    "lint": "eslint '**/*.{js,ts}' --ignore-path .gitignore",
     "test": "hardhat test",
-    "build": "hardhat compile",
-    "lint": "eslint '**/*.{js,ts}' --ignore-path .gitignore"
+    "dev": "run-p dev:*",
+    "dev:node": "hardhat node",
+    "dev:deploy": "wait-on http://localhost:8545 && hardhat run scripts/deploy-capsule.ts --network localhost",
+    "build": "hardhat compile"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
