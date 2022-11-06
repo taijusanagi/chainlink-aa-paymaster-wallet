@@ -22,6 +22,7 @@ With the Capsule Wallet, you can manage your accounts with ease and confidence, 
 !["burner-wallet"](./docs/burner-wallet.png)
 
 - Better security without loosing userbility! That’s Account Abstraction!!
+- Main case is second check of the transaction before sending it
 
 !["account-abstraction"](./docs/account-abstraction.png)
 
@@ -43,7 +44,7 @@ https://docs.google.com/presentation/d/1UVNxJmL83hINHz8diepNhaDMs_nqySxBBKR3o0Od
 
 ## Presentation Video
 
-TBD
+https://youtu.be/mqysPAE8k8Y
 
 ## Development
 
