@@ -327,6 +327,10 @@ const HomePage: NextPage = () => {
                 <Text fontSize={"x-small"} color="gray.600">
                   Encapsulated wallet by Account Abstraction
                 </Text>
+                <Text fontSize="x-small" color="blue.500">
+                  *** This only deploys frontend, you must run your account abstraction bundler locally to do the demo,
+                  see readme for detail ***
+                </Text>
               </Stack>
               <Stack justifyContent={"center"}>
                 <Menu>

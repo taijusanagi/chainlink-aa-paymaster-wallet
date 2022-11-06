@@ -59,6 +59,13 @@ yarn
 yarn dev
 ```
 
+### Deployed
+
+Account Abstraction bundler backend is from 3rd party, and there's no open URL for the stable one for now.
+That part is not my development part, so I did not deploy it on the cloud.
+
+You must run the bundler locally to use the deployed front end.
+
 ### Design
 
 - Should utilize [Chakra UI Pro](https://pro.chakra-ui.com/)
