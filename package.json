@@ -24,7 +24,6 @@
     "dev:bundler-mumbai": "yarn workspace @account-abstraction/bundler bundler --port 3002 --network https://rpc.ankr.com/polygon_mumbai --mnemonic ../../../../mnemonic.txt --entryPoint 0xfad031b3dbd8048d6f84ae16831d9e27430fe555 --beneficiary 0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8",
     "prebuild": "run-p prebuild:*",
     "prebuild:contracts": "yarn workspace @link-wallet/contracts build",
-    "prebuild:bundler": "yarn workspace @account-abstraction/bundler hardhat-compile",
     "build": "run-p build:*",
     "build:app": "yarn workspace @link-wallet/app build"
   },

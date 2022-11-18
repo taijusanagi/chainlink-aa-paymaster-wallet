@@ -291,7 +291,7 @@ const HomePage: NextPage = () => {
                   <Icon
                     as={AiOutlineQrcode}
                     aria-label="qrcode"
-                    color="blue.500"
+                    color={configJsonFile.style.color.link}
                     w={6}
                     h={6}
                     cursor="pointer"
