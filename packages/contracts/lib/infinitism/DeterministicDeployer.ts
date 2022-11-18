@@ -92,7 +92,6 @@ export class DeterministicDeployer {
 
   async deterministicDeploy(ctrCode: string, salt: BigNumberish = 0): Promise<string> {
     const addr = await this.getDeterministicDeployAddress(ctrCode, salt);
-    console.log(await this.isContractDeployed(addr));
     if (!(await this.isContractDeployed(addr))) {
       await this.provider.getSigner().sendTransaction(await this.getDeployTransaction(ctrCode, salt));
     }
