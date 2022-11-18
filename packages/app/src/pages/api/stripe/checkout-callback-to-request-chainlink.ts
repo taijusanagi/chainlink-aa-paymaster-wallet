@@ -32,10 +32,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const signer = new ethers.Wallet(RELAYER_PRIVATE_KEY, provider);
   const paymaster = ChainlinkStripePaymaster__factory.connect(deploymentsJsonFile.paymaster, signer);
 
-  console.log("chainlink client paymaster", deploymentsJsonFile.paymaster);
   console.log("request", paymentId);
   const tx = await paymaster.request(paymentId);
   console.log("sent", tx.hash);
+
+  console.log("this tx calls ChainlinkStripePaymaster", deploymentsJsonFile.paymaster);
+  console.log(
+    "ChainlinkStripePaymaster is going to request chainlink to fetch the stripe payment status by the payment ID"
+  );
+  console.log("After subscription info is fulfilled in paymaster, paymaster will pay the gas fee for the user");
   return res.status(200).json({ hash: tx.hash });
 };
 export default handler;
