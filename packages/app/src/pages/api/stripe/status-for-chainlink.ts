@@ -19,20 +19,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
   }
 
-  const stripe = new Stripe(STRIPE_SECRET_KEY, {
-    apiVersion: "2022-11-15",
-  });
+  // const stripe = new Stripe(STRIPE_SECRET_KEY, {
+  //   apiVersion: "2022-11-15",
+  // });
 
   const { subscriptionId } = req.query;
 
   // for debug
-  console.log("subscriptionId", subscriptionId);
+  console.log("subscriptionId:", subscriptionId);
 
   // implement
 
   // hardcode for the testing
-  return {
-    account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8",
-  };
+  return res.status(200).json({ status: true, account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8" });
 };
 export default handler;

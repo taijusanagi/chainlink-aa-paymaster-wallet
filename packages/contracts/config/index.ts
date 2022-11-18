@@ -6,3 +6,4 @@ export const HARDHAT_CHAINID = 1337; // this is required to fix hardhat and meta
 // https://docs.chain.link/chainlink-nodes/job-specs/direct-request-get-bytes/
 export const JOB_ID = "0x000000000000000000000000000000007da2702f37fd48e5b1b9a5715e3509b6";
 export const SUBSCRIPTION_FEE_IN_USD = 7; // this is fixed for this hackathon
+export const BASE_URI = "https://link-wallet.vercel.app/api/stripe/status-for-chainlink?subscriptionId=";

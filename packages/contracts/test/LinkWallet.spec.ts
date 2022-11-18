@@ -4,7 +4,7 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-import { JOB_ID, SUBSCRIPTION_FEE_IN_USD } from "../config";
+import { BASE_URI, JOB_ID, SUBSCRIPTION_FEE_IN_USD } from "../config";
 import { ChainlinkStripePaymaster } from "../lib/ChainlinkStripePaymaster";
 import { DeterministicDeployer } from "../lib/infinitism/DeterministicDeployer";
 import { LinkWalletAPI } from "../lib/LinkWalletAPI";
@@ -99,13 +99,12 @@ describe("LinkWallet", function () {
       throw new Error("chain id invalid");
     }
     it("chain link test", async () => {
-      const baseURI = "http://localhost:3000/api/stripe/status-for-chainlink?subscriptionId=";
       const { signer, paymasterOwner, entryPoint } = await fixture();
       const { link, oracle, priceFeed } = networkJsonFile[chainId].contracts;
       const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "address", "address", "address", "bytes32", "uint256", "string"],
         // this address data is dummy for local testing
-        [entryPoint.address, paymasterOwner.address, link, oracle, priceFeed, JOB_ID, SUBSCRIPTION_FEE_IN_USD, baseURI]
+        [entryPoint.address, paymasterOwner.address, link, oracle, priceFeed, JOB_ID, SUBSCRIPTION_FEE_IN_USD, BASE_URI]
       );
       const paymasterCreationCode = ethers.utils.solidityPack(
         ["bytes", "bytes"],
@@ -120,7 +119,7 @@ describe("LinkWallet", function () {
       const subscriptionId = "subscriptionId";
       const requestURI = await paymaster.getRequestURI(subscriptionId);
       console.log("requestURI", requestURI);
-      expect(requestURI).to.equal(`${baseURI}${subscriptionId}`);
+      expect(requestURI).to.equal(`${BASE_URI}${subscriptionId}`);
       // this signer should have LINK token in forked environment
       const linkTokenContract = IERC20__factory.connect(link, signer);
       await linkTokenContract.transfer(paymaster.address, ethers.utils.parseEther("1"));

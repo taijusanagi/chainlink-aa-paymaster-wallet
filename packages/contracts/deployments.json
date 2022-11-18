@@ -1,1 +1,5 @@
-{ "entryPoint": "0xfad031b3dbd8048d6f84ae16831d9e27430fe555", "factory": "0x5352d8704b9a251d46aa4674e3215fc6d7baa80a" }
+{
+  "entryPoint": "0xfad031b3dbd8048d6f84ae16831d9e27430fe555",
+  "factory": "0x5352d8704b9a251d46aa4674e3215fc6d7baa80a",
+  "paymaster": "0x98073fa9948a5a0dbddfe1770b907b8715f9edd3"
+}
