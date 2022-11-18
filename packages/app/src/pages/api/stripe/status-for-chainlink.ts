@@ -19,38 +19,44 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     });
   }
 
-  // const stripe = new Stripe(STRIPE_SECRET_KEY, {
-  //   apiVersion: "2022-11-15",
-  // });
+  const stripe = new Stripe(STRIPE_SECRET_KEY, {
+    apiVersion: "2022-11-15",
+  });
 
   const { paymentId } = req.query;
 
   // This is just the debug
   // this should be removed for prod
-
-  if (!paymentId) {
+  if (!paymentId || typeof paymentId !== "string") {
     return res.status(500).json({
       status: false,
       error: "Stripe secret key not set",
     });
   }
 
-  console.log("paymentId:", paymentId);
-
   // this is debug for test chainlink integration effectively
   if (paymentId.indexOf("debug-mode-only-for-admin-account-") >= 0) {
     // this is my test account
-    return res.status(200).json({ status: true, account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8" });
+    return res.status(200).json({ status: true, account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8", env: "debug" });
   }
-  // for debug
 
-  // implement
-  // this is error
-  return res.status(500).json({
-    status: false,
-    error: "Subscription id is invalid",
-  });
+  const { customer: customerId } = await stripe.paymentIntents.retrieve(paymentId);
 
-  // hardcode for the testing
+  if (typeof customerId !== "string") {
+    return res.status(500).json({
+      status: false,
+      error: "Customer is not found for the payment id",
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const customer: any = await stripe.customers.retrieve(customerId);
+  if (!customer.metadata || !customer.metadata.walletAddress) {
+    return res.status(500).json({
+      status: false,
+      error: "Customer does not have wallet address",
+    });
+  }
+  return res.status(200).json({ status: true, account: customer.metadata.walletAddress, env: "test" });
 };
 export default handler;
