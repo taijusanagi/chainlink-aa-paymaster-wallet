@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import { EntryPoint__factory } from "@account-abstraction/contracts";
 import fs from "fs";
 import { ethers, network } from "hardhat";
 import path from "path";
@@ -8,7 +7,11 @@ import { BASE_URI, JOB_ID, SUBSCRIPTION_FEE_IN_USD } from "../config";
 import { DeterministicDeployer } from "../lib/infinitism/DeterministicDeployer";
 import networkJsonFile from "../network.json";
 import { ADDRESS_1 } from "../test/helper/dummy";
-import { ChainlinkStripePaymaster__factory, LinkWalletDeployer__factory } from "../typechain-types";
+import {
+  ChainlinkStripePaymaster__factory,
+  EntryPoint__factory,
+  LinkWalletDeployer__factory,
+} from "../typechain-types";
 import { ChainId } from "../types/ChainId";
 
 async function main() {
@@ -47,6 +50,8 @@ async function main() {
   );
   const entryPointAddress = await DeterministicDeployer.deploy(entryPointCreationCode);
   const factoryAddress = await DeterministicDeployer.deploy(LinkWalletDeployer__factory.bytecode);
+
+  console.log([entryPointAddress, signerAddress, link, oracle, priceFeed, JOB_ID, SUBSCRIPTION_FEE_IN_USD, BASE_URI]);
 
   const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(
     ["address", "address", "address", "address", "address", "bytes32", "uint256", "string"],

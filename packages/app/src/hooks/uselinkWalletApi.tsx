@@ -35,6 +35,8 @@ export const useLinkWalletAPI = () => {
 
       const chainlinkStripePaymaster = new ChainlinkStripePaymaster(deployments.paymaster);
 
+      console.log("deployments.entryPoint", deployments.entryPoint);
+
       const linkWalletAPI = new LinkWalletAPI({
         provider,
         entryPointAddress: deployments.entryPoint,
