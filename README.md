@@ -52,6 +52,7 @@ Implementation details are the followings.
 
 ## Development
 
+- must have Metamask
 - must run with an internet connection
 
 ```
