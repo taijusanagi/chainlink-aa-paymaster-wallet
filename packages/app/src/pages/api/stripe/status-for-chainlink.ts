@@ -4,6 +4,8 @@ import Stripe from "stripe";
 // this is to check the subscription status
 // this end point is called by Chainlink
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  console.log("This is called by the chainlink to fulfill the request");
+
   if (req.method !== "GET") {
     return res.status(400).json({
       status: false,
@@ -24,6 +26,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   const { paymentId } = req.query;
+  console.log("paymentId", paymentId);
 
   // This is just the debug
   // this should be removed for prod
@@ -42,6 +45,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const { customer: customerId } = await stripe.paymentIntents.retrieve(paymentId);
 
+  console.log("customerId", customerId);
+
   if (typeof customerId !== "string") {
     return res.status(500).json({
       status: false,
@@ -57,6 +62,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       error: "Customer does not have wallet address",
     });
   }
+
+  console.log("userWallet", customer.metadata.walletAddress);
+  console.log("userWallet info is fulfilled to the paymaster contract by Chainlink");
+
   return res.status(200).json({ status: true, account: customer.metadata.walletAddress, env: "test" });
 };
 export default handler;
