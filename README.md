@@ -1,5 +1,19 @@
 # Link Wallet
 
+Offchain Payment Account Abstraction Wallet with Chainlink
+
+## Submission
+
+This is for [Chainlink 2022 Fall Hackathon](https://chain.link/hackathon)
+
+### Demo Video
+
+TBD
+
+### Live App
+
+TBD
+
 ## User Benefits
 
 - User can pay gas-fee offchain when start using new chain, in this hackathon, it is Polygon
