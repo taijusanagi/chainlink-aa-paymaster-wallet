@@ -24,7 +24,7 @@ TBD
 
 ## How it works
 
-![how-it-works]
+![how-it-works](./docs/how-it-works.png)
 
 - The blue part is the main implementation of the hackathon
 - Payment status is integrated securely with [Chainlink External Adapters](https://docs.chain.link/chainlink-nodes/external-adapters/external-adapters)
