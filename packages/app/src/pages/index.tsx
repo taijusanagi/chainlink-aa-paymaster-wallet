@@ -280,7 +280,7 @@ const HomePage: NextPage = () => {
                     </Text>
                   </Stack>
                   <Button isLoading={isProcessingStripeCheckout} disabled={isSubscribed} onClick={checkout}>
-                    {isSubscribed ? "Subscribed" : "Not Subscribed"}
+                    {isSubscribed ? "Subscribed" : "Subscribe"}
                   </Button>
                 </Stack>
               </Stack>
