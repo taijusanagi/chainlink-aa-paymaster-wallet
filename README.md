@@ -105,6 +105,15 @@ https://mumbai.polygonscan.com/address/0x5352d8704b9a251d46aa4674e3215fc6d7baa80
 - This is required for the Account Abstraction setup
 - This wallet factory makes the Account Abstraction wallet address ounterfactual by create2
 
+## Sponser Prize
+
+### Quicknode
+
+- Using Quicknode RPC for better performance
+- Used in deploy script and Account Abstraction Bundler
+  - https://github.com/taijusanagi/chainlink-aa-paymaster-wallet/blob/main/package.json#L22
+  - https://github.com/taijusanagi/chainlink-aa-paymaster-wallet/blob/main/packages/contracts/network.json#L9
+
 ## Other Information
 
 ### Stripe Test
