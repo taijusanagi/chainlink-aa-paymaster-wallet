@@ -22,14 +22,19 @@ import { AiOutlineQrcode } from "react-icons/ai";
 import { useSigner } from "wagmi";
 
 import { Layout } from "@/components/Layout";
+import { Modal } from "@/components/Modal";
 import { Unit } from "@/components/Unit";
 import { useConnectedChainConfig } from "@/hooks/useConnectedChainConfig";
 import { useConnectedChainId } from "@/hooks/useConnectedChainId";
+import { useErrorHandler } from "@/hooks/useErrorHandler";
 import { useIsWalletConnected } from "@/hooks/useIsWagmiConnected";
 import { useLinkWalletAPI } from "@/hooks/uselinkWalletApi";
-import { truncate } from "@/lib/utils";
+import { compareInLowerCase, truncate } from "@/lib/utils";
 
 import configJsonFile from "../../config.json";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const QrReader = require("react-qr-scanner");
 
 const HomePage: NextPage = () => {
   const { data: signer } = useSigner();
@@ -45,24 +50,36 @@ const HomePage: NextPage = () => {
   const [walletConnectURI, setWalletConnectURI] = useState("");
   const [isWalletConnectConnecting, setIsWalletConnectConnecting] = useState(false);
   const [isWalletConnectSessionEstablished, setIsWalletConnectSessionEstablished] = useState(false);
+  const [connectedApp, setConnectedApp] = useState<{ name: string; url: string }>();
 
   const [transactionHash, setTransactionHash] = useState("");
 
+  const { handleError } = useErrorHandler();
   const qrReaderDisclosure = useDisclosure();
 
-  const processTx = async (from: string, to: string, data: string, value: string, gasLimit?: string) => {
-    try {
-      console.log("processTx");
-    } catch (e) {
-      console.error(e);
+  const onQRReaderScan = (result: { text: string }) => {
+    if (!result) {
+      return;
     }
+    const walletConnectURI = result.text;
+    setWalletConnectURI(walletConnectURI);
+    connectWithWalletConnect(walletConnectURI);
+    qrReaderDisclosure.onClose();
+  };
+  const onQRReaderError = (err: unknown) => {
+    handleError(err);
+  };
+
+  const clearWalletConnect = () => {
+    setConnectedApp(undefined);
+    setIsWalletConnectConnecting(false);
+    setIsWalletConnectSessionEstablished(false);
   };
 
   const connectWithWalletConnect = async (walletConnectURI: string) => {
     if (!connectedChainId || !signer || !bundler || !linkWalletAPI || !linkWalletAddress) {
       return;
     }
-
     setIsWalletConnectConnecting(true);
     try {
       let walletConnectConnector = new WalletConnect({
@@ -83,6 +100,8 @@ const HomePage: NextPage = () => {
         console.log("approving session");
         walletConnectConnector.approveSession({ chainId: Number(connectedChainId), accounts: [linkWalletAddress] });
         console.log("session approved");
+        const { peerMeta } = payload.params[0];
+        setConnectedApp({ ...peerMeta });
         setIsWalletConnectConnecting(false);
         setIsWalletConnectSessionEstablished(true);
       });
@@ -136,13 +155,33 @@ const HomePage: NextPage = () => {
         if (error) {
           throw error;
         }
-        setIsWalletConnectConnecting(false);
-        setIsWalletConnectSessionEstablished(false);
+        clearWalletConnect();
       });
     } catch (e) {
-      console.error(e);
-      setIsWalletConnectConnecting(false);
-      setIsWalletConnectSessionEstablished(false);
+      handleError(e);
+      clearWalletConnect();
+    }
+  };
+
+  const processTx = async (from: string, to: string, data: string, value: string, gasLimit?: string) => {
+    if (!linkWalletAPI || !linkWalletAddress || !bundler || !compareInLowerCase(linkWalletAddress, from)) {
+      return;
+    }
+    try {
+      const op = await linkWalletAPI.createSignedUserOp({
+        target: to,
+        data,
+        value,
+        gasLimit,
+      });
+      console.log("user op", op);
+      const requestId = await bundler.sendUserOpToBundler(op);
+      console.log("request sent", requestId);
+      const transactionHash = await getTransactionHashByRequestID(requestId);
+      console.log("transactionHash", transactionHash);
+      setTransactionHash(transactionHash);
+    } catch (e) {
+      handleError(e);
     }
   };
 
@@ -180,7 +219,10 @@ const HomePage: NextPage = () => {
                     Address
                   </Text>
                   <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
-                    <Link color={configJsonFile.style.color.link}>{truncate(linkWalletAddress, 16, 16)}</Link>
+                    {!linkWalletAddress && <>Loading...</>}
+                    {linkWalletAddress && (
+                      <Link color={configJsonFile.style.color.link}>{truncate(linkWalletAddress, 16, 16)}</Link>
+                    )}
                   </Text>
                 </Stack>
                 <Stack spacing="0">
@@ -188,7 +230,12 @@ const HomePage: NextPage = () => {
                     Onchain Balance
                   </Text>
                   <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
-                    {linkWalletBalance} {connectedChainConfig.currency}
+                    {!linkWalletBalance && <>Loading...</>}
+                    {linkWalletBalance && (
+                      <>
+                        {linkWalletBalance} {connectedChainConfig.currency}
+                      </>
+                    )}
                   </Text>
                 </Stack>
                 <Stack spacing="4">
@@ -219,26 +266,60 @@ const HomePage: NextPage = () => {
                 </Text>
               </Flex>
               <Stack>
-                <Input
-                  placeholder={"Paste wc: uri"}
-                  type={"text"}
-                  value={walletConnectURI}
-                  fontSize="xs"
-                  onChange={(e) => setWalletConnectURI(e.target.value)}
-                  disabled={isWalletConnectConnecting || isWalletConnectSessionEstablished}
-                />
-                <Button
-                  onClick={() => connectWithWalletConnect(walletConnectURI)}
-                  isLoading={isWalletConnectConnecting}
-                  disabled={isWalletConnectSessionEstablished}
-                >
-                  {!isWalletConnectSessionEstablished ? "Connect" : "Connected"}
-                </Button>
+                <Stack spacing="0">
+                  <Text fontSize="sm" fontWeight={"bold"} color={configJsonFile.style.color.black.text.secondary}>
+                    Sample dApps
+                  </Text>
+                  <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
+                    <Link color={configJsonFile.style.color.link} href={configJsonFile.url.sample} target={"_blank"}>
+                      WalletConnect Example
+                    </Link>
+                  </Text>
+                </Stack>
+                <Stack spacing="3.5">
+                  <Stack spacing="0">
+                    <Text fontSize="sm" fontWeight={"bold"} color={configJsonFile.style.color.black.text.secondary}>
+                      Connected Apps
+                    </Text>
+                    {!connectedApp && (
+                      <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
+                        None
+                      </Text>
+                    )}
+                    {connectedApp && (
+                      <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
+                        <Link color={configJsonFile.style.color.link} href={connectedApp.url} target={"_blank"}>
+                          {connectedApp.name}
+                        </Link>
+                      </Text>
+                    )}
+                  </Stack>
+                  <Stack>
+                    <Input
+                      placeholder={"Paste wc: uri"}
+                      type={"text"}
+                      value={walletConnectURI}
+                      fontSize="xs"
+                      onChange={(e) => setWalletConnectURI(e.target.value)}
+                      disabled={isWalletConnectConnecting || isWalletConnectSessionEstablished}
+                    />
+                    <Button
+                      onClick={() => connectWithWalletConnect(walletConnectURI)}
+                      isLoading={isWalletConnectConnecting}
+                      disabled={isWalletConnectSessionEstablished}
+                    >
+                      {!isWalletConnectSessionEstablished ? "Connect" : "Connected"}
+                    </Button>
+                  </Stack>
+                </Stack>
               </Stack>
             </Unit>
           </SimpleGrid>
         )}
       </Stack>
+      <Modal isOpen={qrReaderDisclosure.isOpen} onClose={qrReaderDisclosure.onClose} header="WalletConnect QR Scanner">
+        <QrReader delay={500} onError={onQRReaderError} onScan={onQRReaderScan} />
+      </Modal>
     </Layout>
   );
 };
