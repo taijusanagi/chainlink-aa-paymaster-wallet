@@ -23,22 +23,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   //   apiVersion: "2022-11-15",
   // });
 
-  const { subscriptionId } = req.query;
+  const { paymentId } = req.query;
 
   // This is just the debug
   // this should be removed for prod
 
-  if (!subscriptionId) {
+  if (!paymentId) {
     return res.status(500).json({
       status: false,
       error: "Stripe secret key not set",
     });
   }
 
-  console.log("subscriptionId:", subscriptionId);
+  console.log("paymentId:", paymentId);
 
   // this is debug for test chainlink integration effectively
-  if (subscriptionId.indexOf("debug-mode-only-for-admin-account-") >= 0) {
+  if (paymentId.indexOf("debug-mode-only-for-admin-account-") >= 0) {
     // this is my test account
     return res.status(200).json({ status: true, account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8" });
   }

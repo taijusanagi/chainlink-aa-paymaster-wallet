@@ -116,16 +116,14 @@ describe("LinkWallet", function () {
       const ethWeiForSevenUSD = await paymaster.getCurrentEthAmountForSubscription(subscriptionFeeInUSD);
       // this works
       console.log(`${subscriptionFeeInUSD} USD is equivalent to ${ethers.utils.formatEther(ethWeiForSevenUSD)} ETH`);
-      const subscriptionId = "subscriptionId";
-      const requestURI = await paymaster.getRequestURI(subscriptionId);
+      const paymentId = "paymentId";
+      const requestURI = await paymaster.getRequestURI(paymentId);
       console.log("requestURI", requestURI);
-      expect(requestURI).to.equal(`${BASE_URI}${subscriptionId}`);
+      expect(requestURI).to.equal(`${BASE_URI}${paymentId}`);
       // this signer should have LINK token in forked environment
       const linkTokenContract = IERC20__factory.connect(link, signer);
       await linkTokenContract.transfer(paymaster.address, ethers.utils.parseEther("0.1"));
-      await expect(paymaster.request(subscriptionId))
-        .to.emit(paymaster, "Requested")
-        .withArgs(subscriptionId, anyValue);
+      await expect(paymaster.request(paymentId)).to.emit(paymaster, "Requested").withArgs(paymentId, anyValue);
     });
   }
 });

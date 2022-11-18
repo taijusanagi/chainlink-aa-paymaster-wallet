@@ -19,8 +19,10 @@ async function main() {
   console.log("paymaster", paymaster);
   const paymasterContract = ChainlinkStripePaymaster__factory.connect(paymaster, signer);
   const blockNumber = await ethers.provider.getBlockNumber();
-  const testSubscriptionId = `debug-mode-only-for-admin-account-${blockNumber}`; // make it incremental value to pass the validation
-  const tx = await paymasterContract.request(testSubscriptionId);
+  const testPaymentId = `debug-mode-only-for-admin-account-${blockNumber}`; // make it incremental value to pass the validation
+  const expectedUri = await paymasterContract.getRequestURI(testPaymentId);
+  console.log("expectedUri", expectedUri);
+  const tx = await paymasterContract.request(testPaymentId);
   console.log("tx sent", tx.hash);
 }
 

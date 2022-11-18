@@ -15,9 +15,9 @@ contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
 
   // subscription Id could be bytes32 or some other light type for strage optimization
   // however, that is not relevant with the core value of product, so use string for this hackathon
-  event Requested(string indexed subscriptionId, bytes32 indexed requestId);
+  event Requested(string indexed paymentId, bytes32 indexed requestId);
   event SubscriptionCreatedOrRenewed(bytes32 indexed requestId, address indexed account, uint256 volume);
-  mapping(string => bool) public isSubscriptionIdUsed;
+  mapping(string => bool) public isPaymentIdUsed;
 
   uint256 public subscriptionFeeInUSD;
   address public priceFeed;
@@ -39,9 +39,9 @@ contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
     setChainlinkToken(link);
     setChainlinkOracle(oracle);
     priceFeed = priceFeed_;
-    jobId = jobId_;
-    // This fee is picked from
     // https://docs.chain.link/any-api/get-request/examples/large-responses/
+    // jobId = "7da2702f37fd48e5b1b9a5715e3509b6";
+    jobId = jobId_; // ethers.utils.hexlify(ethers.utils.toUtf8Bytes(JOB_ID_STRING));
     fee = (1 * LINK_DIVISIBILITY) / 10; // 0,1 * 10**18 (Varies by network and job)
     subscriptionFeeInUSD = subscriptionFeeInUSD_; // 7 USD
     requestBaseURI = baseURI;
@@ -54,8 +54,8 @@ contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
    */
 
   // this is separated for better test
-  function getRequestURI(string memory subscriptionId) public view returns (string memory) {
-    return string(abi.encodePacked(requestBaseURI, subscriptionId));
+  function getRequestURI(string memory paymentId) public view returns (string memory) {
+    return string(abi.encodePacked(requestBaseURI, paymentId));
   }
 
   // this is separated for better test
@@ -65,25 +65,22 @@ contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
     return (amount * (10**8) * 1 ether) / uint256(answer);
   }
 
-  function request(string memory subscriptionId) public returns (bytes32) {
+  function request(string memory paymentId) public returns (bytes32) {
     // the subscription id is only used once
-    require(!isSubscriptionIdUsed[subscriptionId], "ChainlinkStripePaymaster: this subscription id is already used");
-
+    require(!isPaymentIdUsed[paymentId], "ChainlinkStripePaymaster: this subscription id is already used");
     Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
-    req.add("get", getRequestURI(subscriptionId));
+    req.add("get", getRequestURI(paymentId));
     req.add("path", "account"); // this is key for the payer address
     bytes32 requestId = sendChainlinkRequest(req, fee);
-    emit Requested(subscriptionId, requestId);
+    emit Requested(paymentId, requestId);
     return requestId;
   }
 
   function fulfill(bytes32 requestId, bytes memory bytesData) public recordChainlinkFulfillment(requestId) {
     // get account from bytes
     address account = address(bytes20(bytesData));
-
     // take current ETH value in wei for subscriptionFeeInUSD
     uint256 amount = getCurrentEthAmountForSubscription(subscriptionFeeInUSD);
-
     deposits[account] = deposits[account] + amount;
     emit SubscriptionCreatedOrRenewed(requestId, account, amount);
   }
