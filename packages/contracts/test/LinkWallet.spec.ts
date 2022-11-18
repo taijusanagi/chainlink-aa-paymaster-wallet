@@ -17,7 +17,7 @@ import { ethers } from "hardhat";
 
 import { DeterministicDeployer } from "../lib/infinitism/DeterministicDeployer";
 import { LinkWalletAPI } from "../lib/LinkWalletAPI";
-import { LinkWalletDeployer__factory, NFTDrop, NFTDrop__factory } from "../typechain-types";
+import { LinkWalletDeployer__factory } from "../typechain-types";
 
 const provider = ethers.provider;
 
@@ -29,7 +29,6 @@ describe("LinkWallet", () => {
   let entryPoint: EntryPoint;
   let beneficiary: string;
   let recipient: SampleRecipient;
-  let nftDrop: NFTDrop;
   let factoryAddress: string;
   let walletAddress: string;
   let walletDeployed = false;
@@ -39,7 +38,6 @@ describe("LinkWallet", () => {
     entryPoint = await new EntryPoint__factory(signer).deploy(1, 1);
     beneficiary = await signer.getAddress();
     recipient = await new SampleRecipient__factory(signer).deploy();
-    nftDrop = await new NFTDrop__factory(signer).deploy();
     factoryAddress = await DeterministicDeployer.deploy(LinkWalletDeployer__factory.bytecode);
     api = new LinkWalletAPI({
       provider,
@@ -138,18 +136,10 @@ describe("LinkWallet", () => {
       expect(walletAddress).to.eq(calculatedAddress);
     });
 
-    it("nftDrop", async function () {
-      const op = await api.createSignedUserOp({
-        target: nftDrop.address,
-        data: nftDrop.interface.encodeFunctionData("mint"),
-      });
-      await expect(entryPoint.handleOps([op], beneficiary));
-    });
-
     it("paymaster", async function () {
       const op = await api.createSignedUserOp({
-        target: nftDrop.address,
-        data: nftDrop.interface.encodeFunctionData("mint"),
+        target: recipient.address,
+        data: recipient.interface.encodeFunctionData("something", ["hello"]),
       });
       await expect(entryPoint.handleOps([op], beneficiary));
     });
