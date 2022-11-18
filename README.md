@@ -1,6 +1,6 @@
 # Link Wallet
 
-Offchain Payable Account Abstraction with Chainlink
+Account Abstraction Wallet with Offchain Gas Fee Subscription by Chainlink
 
 ![top-screen-shot](./docs/top-screen-shot.png)
 
