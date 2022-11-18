@@ -10,17 +10,19 @@ This is for [Chainlink 2022 Fall Hackathon](https://chain.link/hackathon)
 
 ### Demo Video
 
-TBD
+https://youtu.be/Ts63_YvXflQ
 
 ### Live App
 
-TBD
+https://link-wallet.vercel.app/
+
+- this requires running a bundler in local
 
 ## User Benefits
 
-- Users can pay the gas fee by offchain subscription
+- Users can pay the gas fee by an off-chain subscription
 - It enables users to skip "bridge token from the other chain" or "send token from the central exchange", which is the first obstacle for users to start using a blockchain-based app
-- It brings very good onboarding, especially for the new user
+- It brings excellent onboarding, especially for the new user
 
 ## How it works
 
@@ -81,7 +83,7 @@ https://mumbai.polygonscan.com/tx/0x360d68d77451681ac75a063145d83f3c2e0bbba1a9ef
 https://mumbai.polygonscan.com/address/0xf317c52db727f9d8a3ac04304cb34a297bffef9a#code
 
 - This is required for the Account Abstraction setup
-- This EntryPoint handle the user request
+- This EntryPoint handles the user request
 
 ### WalletFactory
 

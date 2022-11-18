@@ -208,10 +208,9 @@ const HomePage: NextPage = () => {
         target: to,
         data,
         value,
-        gasLimit: Number(gasLimit) * 2, // let's add some extra gas
+        gasLimit: 3813225, // let's add some extra gas
       });
       console.log("before", op);
-      op.paymasterAndData = "0xfaf0064bc2d8abeb1bbfacee7f981d2ee9a15945";
       console.log("user op", op);
       const requestId = await bundler.sendUserOpToBundler(op);
       console.log("request sent", requestId);
