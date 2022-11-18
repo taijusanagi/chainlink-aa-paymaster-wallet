@@ -25,12 +25,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const { subscriptionId } = req.query;
 
+  // This is just the debug
+  // this should be removed for prod
+  if (subscriptionId === "debug") {
+    // this is my test account
+    return res.status(200).json({ status: true, account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8" });
+  }
   // for debug
   console.log("subscriptionId:", subscriptionId);
 
   // implement
+  // this is error
+  return res.status(200).json({ status: false });
 
   // hardcode for the testing
-  return res.status(200).json({ status: true, account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8" });
 };
 export default handler;
