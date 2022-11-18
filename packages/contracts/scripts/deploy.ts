@@ -13,9 +13,11 @@ import { ChainId } from "../types/ChainId";
 
 async function main() {
   const chainId = String(network.config.chainId) as ChainId;
+  // this can bypass the chain id check because it could be run in local env
   // if (chainId !== "80001") {
   //   throw new Error("chain id invalid");
   // }
+  console.log("chainId", chainId);
 
   const signer = await ethers.provider.getSigner();
   const signerAddress = await signer.getAddress(); // this is used for paymaster owner

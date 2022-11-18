@@ -77,10 +77,10 @@ describe("LinkWallet", function () {
       });
       const paymaster = ChainlinkStripePaymaster__factory.connect(paymasterAddress, paymasterOwner);
       // IMPORTANT: this is the setup for the paymaster
-      await paymaster.deposit({ value: ethers.utils.parseEther("1") });
-      await paymaster.addStake(0, { value: ethers.utils.parseEther("1") });
+      await paymaster.deposit({ value: ethers.utils.parseEther("0.1") });
+      await paymaster.addStake(0, { value: ethers.utils.parseEther("0.1") });
       const walletAddress = await api.getWalletAddress();
-      await paymaster.testDeposit(walletOwner.address, { value: ethers.utils.parseEther("1") });
+      await paymaster.testDeposit(walletOwner.address, { value: ethers.utils.parseEther("0.1") });
       expect(await provider.getCode(walletAddress).then((code) => code.length)).to.equal(2);
       const op = await api.createSignedUserOp({
         target: recipient.address,
@@ -122,7 +122,7 @@ describe("LinkWallet", function () {
       expect(requestURI).to.equal(`${BASE_URI}${subscriptionId}`);
       // this signer should have LINK token in forked environment
       const linkTokenContract = IERC20__factory.connect(link, signer);
-      await linkTokenContract.transfer(paymaster.address, ethers.utils.parseEther("1"));
+      await linkTokenContract.transfer(paymaster.address, ethers.utils.parseEther("0.1"));
       await expect(paymaster.request(subscriptionId))
         .to.emit(paymaster, "Requested")
         .withArgs(subscriptionId, anyValue);

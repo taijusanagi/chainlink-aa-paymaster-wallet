@@ -27,16 +27,29 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   // This is just the debug
   // this should be removed for prod
-  if (subscriptionId === "debug") {
+
+  if (!subscriptionId) {
+    return res.status(500).json({
+      status: false,
+      error: "Stripe secret key not set",
+    });
+  }
+
+  console.log("subscriptionId:", subscriptionId);
+
+  // this is debug for test chainlink integration effectively
+  if (subscriptionId.indexOf("debug-mode-only-for-admin-account-") >= 0) {
     // this is my test account
     return res.status(200).json({ status: true, account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8" });
   }
   // for debug
-  console.log("subscriptionId:", subscriptionId);
 
   // implement
   // this is error
-  return res.status(200).json({ status: false });
+  return res.status(500).json({
+    status: false,
+    error: "Subscription id is invalid",
+  });
 
   // hardcode for the testing
 };
