@@ -15,9 +15,10 @@ import { expect } from "chai";
 import { parseEther } from "ethers/lib/utils";
 import { ethers } from "hardhat";
 
+import { ChainlinkStripePaymaster } from "../lib/ChainlinkStripePaymaster";
 import { DeterministicDeployer } from "../lib/infinitism/DeterministicDeployer";
 import { LinkWalletAPI } from "../lib/LinkWalletAPI";
-import { LinkWalletDeployer__factory } from "../typechain-types";
+import { ChainlinkStripePaymaster__factory, LinkWalletDeployer__factory } from "../typechain-types";
 
 const provider = ethers.provider;
 
@@ -39,11 +40,22 @@ describe("LinkWallet", () => {
     beneficiary = await signer.getAddress();
     recipient = await new SampleRecipient__factory(signer).deploy();
     factoryAddress = await DeterministicDeployer.deploy(LinkWalletDeployer__factory.bytecode);
+    const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(["address"], [entryPoint.address]);
+    const paymasterCreationCode = ethers.utils.solidityPack(
+      ["bytes", "bytes"],
+      [ChainlinkStripePaymaster__factory.bytecode, deployPaymasterArgument]
+    );
+    const paymasterAddress = await DeterministicDeployer.deploy(paymasterCreationCode);
+    const paymasterAPI = new ChainlinkStripePaymaster(paymasterAddress);
+
+    await signer.sendTransaction({ to: paymasterAddress, value: ethers.utils.parseEther("1"), data: "0x" });
+
     api = new LinkWalletAPI({
       provider,
       entryPointAddress: entryPoint.address,
       owner,
       factoryAddress,
+      // paymasterAPI,
     });
   });
 
@@ -141,7 +153,7 @@ describe("LinkWallet", () => {
         target: recipient.address,
         data: recipient.interface.encodeFunctionData("something", ["hello"]),
       });
-      await expect(entryPoint.handleOps([op], beneficiary));
+      await entryPoint.handleOps([op], beneficiary);
     });
   });
 });
