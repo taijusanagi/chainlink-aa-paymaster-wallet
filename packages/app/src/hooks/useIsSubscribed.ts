@@ -12,7 +12,7 @@ export const useIsSubscribed = () => {
       setIsSubscribed(false);
       return;
     }
-    fetch("/api/stripe/subscription", {
+    fetch("/api/stripe/user-subscription-status", {
       method: "POST",
     })
       .then(async (res) => {

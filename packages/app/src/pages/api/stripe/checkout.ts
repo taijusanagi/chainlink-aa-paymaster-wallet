@@ -2,7 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 import Stripe from "stripe";
 
-const checkout = async (req: NextApiRequest, res: NextApiResponse) => {
+// this is to checkout by stripe
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
     return res.status(400).json({
       error: "Invalid method. Only POST supported.",
@@ -70,4 +71,4 @@ const checkout = async (req: NextApiRequest, res: NextApiResponse) => {
   return res.status(200).json(session);
 };
 
-export default checkout;
+export default handler;

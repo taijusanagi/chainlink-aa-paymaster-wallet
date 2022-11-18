@@ -2,7 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 import Stripe from "stripe";
 
-const subscription = async (req: NextApiRequest, res: NextApiResponse) => {
+// this is to check the current user subscription status
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "POST") {
     return res.status(400).json({
       status: false,
@@ -10,18 +11,11 @@ const subscription = async (req: NextApiRequest, res: NextApiResponse) => {
     });
   }
 
-  const { STRIPE_SECRET_KEY, NEXT_PUBLIC_AUTH_DOMAIN: domain } = process.env;
+  const { STRIPE_SECRET_KEY } = process.env;
   if (!STRIPE_SECRET_KEY) {
     return res.status(500).json({
       status: false,
       error: "Stripe secret key not set",
-    });
-  }
-
-  if (!domain) {
-    return res.status(500).json({
-      status: false,
-      error: "Auth domain not set",
     });
   }
 
@@ -64,4 +58,4 @@ const subscription = async (req: NextApiRequest, res: NextApiResponse) => {
     .status(200)
     .json({ status: true, message: `User ${walletAddress} has subscription with ID ${subscriptions?.data[0].id}` });
 };
-export default subscription;
+export default handler;
