@@ -31,13 +31,14 @@ export interface RainbowWeb3AuthConnectorProps {
 }
 
 const { connectors } = getDefaultWallets({
-  appName: "NFTHashi",
+  appName: "LinkWallet",
   chains,
 });
 
 export { chains };
 
 export const wagmiClient = createClient({
+  autoConnect: true,
   connectors,
   provider,
 });

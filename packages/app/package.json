@@ -26,6 +26,7 @@
     "react-icons": "^4.6.0",
     "react-qr-scanner": "^1.0.0-alpha.11",
     "siwe": "^2.0.5",
+    "stripe": "^11.1.0",
     "wagmi": "^0.7.9"
   },
   "devDependencies": {

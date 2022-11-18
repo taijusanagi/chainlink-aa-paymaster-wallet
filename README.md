@@ -18,7 +18,7 @@ TBD
 
 ## User Benefits
 
-- Users can pay Offchain gas-fee when start using Polygon
+- Users can pay the gas fee by offchain subscription
 - It enables users to skip "bridge token from the other chain" or "send token from the central exchange", which is the first obstacle for users to start using a blockchain-based app
 - It brings very good onboarding, especially for the new user
 
@@ -49,6 +49,12 @@ Implementation details are the followings.
 - To manage user payment for the gas fee
 - The Main reference of the integration
   - https://github.com/thirdweb-example/thirdweb-stripe
+
+## Other Information
+
+### Stripe Test
+
+https://stripe.com/docs/testing
 
 ## Development
 

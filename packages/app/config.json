@@ -4,7 +4,7 @@
   "url": {
     "app": "https://link-wallet.vercel.app",
     "github": "https://github.com/taijusanagi/chainlink-aa-paymaster-wallet",
-    "chainlnk": "https://chain.link",
+    "hackathon": "https://chain.link/hackathon",
     "sample": "https://example.walletconnect.org"
   },
   "style": {

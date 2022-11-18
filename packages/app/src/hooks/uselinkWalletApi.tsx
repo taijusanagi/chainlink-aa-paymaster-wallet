@@ -7,10 +7,13 @@ import { useNetwork, useSigner } from "wagmi";
 
 import deployments from "../../../contracts/deployments.json";
 import { LinkWalletAPI } from "../../../contracts/lib/LinkWalletAPI";
+import { useIsSignedIn } from "./useIsSignedIn";
 
-export const useLinkWalletAPI = (index = 0) => {
+export const useLinkWalletAPI = () => {
   const { data: signer } = useSigner();
   const { chain } = useNetwork();
+
+  const { isSignedIn } = useIsSignedIn();
 
   const [bundler, setBundler] = useState<HttpRpcClient>();
   const [linkWalletAPI, setLinkWalletAPI] = useState<LinkWalletAPI>();
@@ -19,7 +22,7 @@ export const useLinkWalletAPI = (index = 0) => {
 
   useEffect(() => {
     (async () => {
-      if (!chain || !signer || !signer.provider) {
+      if (!chain || !signer || !signer.provider || !isSignedIn) {
         setLinkWalletAPI(undefined);
         setLinkWalletAddress("");
         return;
@@ -33,7 +36,7 @@ export const useLinkWalletAPI = (index = 0) => {
         entryPointAddress: deployments.entryPoint,
         owner: signer,
         factoryAddress: deployments.factory,
-        index,
+        index: 0,
       });
       setLinkWalletAPI(linkWalletAPI);
       const LinkWalletAddress = await linkWalletAPI.getWalletAddress();
@@ -43,7 +46,7 @@ export const useLinkWalletAPI = (index = 0) => {
       const LinkWalletBalance = ethers.utils.formatEther(LinkWalletBalanceBigNumber.sub(remainder));
       setLinkWalletBalance(LinkWalletBalance);
     })();
-  }, [chain, signer, index]);
+  }, [chain, signer, isSignedIn]);
 
   const getTransactionHashByRequestID = async (requestId: string) => {
     if (!signer || !signer.provider) {

@@ -28,7 +28,8 @@ import { Unit } from "@/components/Unit";
 import { useConnectedChainConfig } from "@/hooks/useConnectedChainConfig";
 import { useConnectedChainId } from "@/hooks/useConnectedChainId";
 import { useErrorHandler } from "@/hooks/useErrorHandler";
-import { useIsWalletConnected } from "@/hooks/useIsWagmiConnected";
+import { useIsSignedIn } from "@/hooks/useIsSignedIn";
+import { useIsSubscribed } from "@/hooks/useIsSubscribed";
 import { useLinkWalletAPI } from "@/hooks/uselinkWalletApi";
 import { compareInLowerCase, truncate } from "@/lib/utils";
 
@@ -43,10 +44,13 @@ const HomePage: NextPage = () => {
   const { connectedChainConfig } = useConnectedChainConfig();
   const { openConnectModal } = useConnectModal();
 
-  const { isWalletConnected } = useIsWalletConnected();
+  const { isSignedIn } = useIsSignedIn();
+  const { isSubscribed } = useIsSubscribed();
 
   const { linkWalletAddress, linkWalletBalance, bundler, linkWalletAPI, getTransactionHashByRequestID } =
     useLinkWalletAPI();
+
+  const [isProcessingStripeCheckout, setIsProcessingStripeCheckout] = useState(false);
 
   const [walletConnectURI, setWalletConnectURI] = useState("");
   const [isWalletConnectConnecting, setIsWalletConnectConnecting] = useState(false);
@@ -59,6 +63,7 @@ const HomePage: NextPage = () => {
   const qrReaderDisclosure = useDisclosure();
 
   const checkout = async () => {
+    setIsProcessingStripeCheckout(true);
     try {
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
@@ -79,6 +84,8 @@ const HomePage: NextPage = () => {
       });
     } catch (e) {
       handleError(e);
+    } finally {
+      setIsProcessingStripeCheckout(false);
     }
   };
 
@@ -219,7 +226,7 @@ const HomePage: NextPage = () => {
             {configJsonFile.description}
           </Text>
         </VStack>
-        {!isWalletConnected && (
+        {!isSignedIn && (
           <VStack>
             <HStack spacing="4">
               <Button
@@ -235,7 +242,7 @@ const HomePage: NextPage = () => {
             </HStack>
           </VStack>
         )}
-        {isWalletConnected && connectedChainId && connectedChainConfig && (
+        {isSignedIn && connectedChainId && connectedChainConfig && (
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
             <Unit header={configJsonFile.name}>
               <Stack>
@@ -266,13 +273,15 @@ const HomePage: NextPage = () => {
                 <Stack spacing="4">
                   <Stack spacing="0">
                     <Text fontSize="sm" fontWeight={"bold"} color={configJsonFile.style.color.black.text.secondary}>
-                      Remaining Offchain Gas
+                      Offchain Gas Payment Subscription
                     </Text>
                     <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
-                      0 USD
+                      7 USD
                     </Text>
                   </Stack>
-                  <Button onClick={checkout}>Pay by Stripe</Button>
+                  <Button isLoading={isProcessingStripeCheckout} disabled={isSubscribed} onClick={checkout}>
+                    {isSubscribed ? "Subscribed" : "Not Subscribed"}
+                  </Button>
                 </Stack>
               </Stack>
             </Unit>
