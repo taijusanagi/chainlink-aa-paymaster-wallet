@@ -105,9 +105,7 @@ describe("LinkWallet", function () {
     }
 
     it("chain link test", async () => {
-      const { provider, walletOwner, paymasterOwner, beneficiary, recipient, factoryAddress, entryPoint } =
-        await fixture();
-
+      const { paymasterOwner, entryPoint } = await fixture();
       const { link, oracle } = networkJsonFile[chainId].contracts;
       const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "address", "address"],
@@ -118,6 +116,11 @@ describe("LinkWallet", function () {
         ["bytes", "bytes"],
         [ChainlinkStripePaymaster__factory.bytecode, deployPaymasterArgument]
       );
+      const paymasterAddress = await DeterministicDeployer.deploy(paymasterCreationCode);
+      const paymaster = ChainlinkStripePaymaster__factory.connect(paymasterAddress, paymasterOwner);
+      const subscriptionFeeInUSD = await paymaster.subscriptionFeeInUSD();
+      const ethWeiForSevenUSD = await paymaster.getCurrentEthAmountForSubscription(subscriptionFeeInUSD);
+      console.log(`${subscriptionFeeInUSD} USD is equivalent to ${ethers.utils.formatEther(ethWeiForSevenUSD)} ETH`);
     });
   }
 });

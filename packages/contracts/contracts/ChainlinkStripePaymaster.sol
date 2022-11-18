@@ -10,7 +10,12 @@ import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
   using Chainlink for Chainlink.Request;
 
-  // bytes32 private _jobId;
+  event SubscriptionCreatedOrRenewed(bytes32 indexed requestId, address indexed account, uint256 volume);
+
+  // this is constant for the hackathon
+  uint256 public constant subscriptionFeeInUSD = 7; // 7 USD
+
+  bytes32 private _jobId;
 
   // owner should be set here because of the DeterministicDeployer limitation
   constructor(
@@ -25,6 +30,34 @@ contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
   }
 
   mapping(address => uint256) public deposits;
+
+  /*
+   * Chainlink Implementation
+   */
+
+  function request() public returns (bytes32 requestId) {
+    Chainlink.Request memory req = buildChainlinkRequest(_jobId, address(this), this.fulfill.selector);
+  }
+
+  function fulfill(
+    bytes32 requestId,
+    address account,
+    uint256 value
+  ) public recordChainlinkFulfillment(requestId) {
+    // this should calculate
+    uint256 amount = getCurrentEthAmountForSubscription(subscriptionFeeInUSD);
+    deposits[account] = deposits[account] + amount;
+    emit SubscriptionCreatedOrRenewed(requestId, account, amount);
+  }
+
+  function getCurrentEthAmountForSubscription(uint256 amount) public view returns (uint256) {
+    // this should use chain link price feed
+    return amount * 714000000000000;
+  }
+
+  /*
+   * Account Abstraction Paymater Implementation
+   */
 
   // this is for manual deposit for testing, this should be automated by chainlink for prod
   function testDeposit(address account) public payable {
