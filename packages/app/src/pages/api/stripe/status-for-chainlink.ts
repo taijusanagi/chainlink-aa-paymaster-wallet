@@ -1,9 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { getToken } from "next-auth/jwt";
 import Stripe from "stripe";
 
 // this is to check the subscription status
-// this end point is integrated with Chainlink
+// this end point is called by Chainlink
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== "GET") {
     return res.status(400).json({
@@ -23,5 +22,17 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const stripe = new Stripe(STRIPE_SECRET_KEY, {
     apiVersion: "2022-11-15",
   });
+
+  const { subscriptionId } = req.query;
+
+  // for debug
+  console.log("subscriptionId", subscriptionId);
+
+  // implement
+
+  // hardcode for the testing
+  return {
+    account: "0x29893eEFF38C5D5A1B2F693e2d918e618CCFfdD8",
+  };
 };
 export default handler;

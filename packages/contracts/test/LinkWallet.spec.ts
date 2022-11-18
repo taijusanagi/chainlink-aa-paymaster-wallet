@@ -99,7 +99,7 @@ describe("LinkWallet", function () {
       throw new Error("chain id invalid");
     }
     it("chain link test", async () => {
-      const baseURI = "http://localhost:3000/api/stripe/status?subscriptionId=";
+      const baseURI = "http://localhost:3000/api/stripe/status-for-chainlink?subscriptionId=";
       const { signer, paymasterOwner, entryPoint } = await fixture();
       const { link, oracle, priceFeed } = networkJsonFile[chainId].contracts;
       const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(
