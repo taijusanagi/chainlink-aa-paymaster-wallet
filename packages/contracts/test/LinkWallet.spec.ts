@@ -78,8 +78,9 @@ describe("LinkWallet", function () {
     // IMPORTANT: this is the setup for the paymaster
     await paymaster.deposit({ value: ethers.utils.parseEther("1") });
     await paymaster.addStake(0, { value: ethers.utils.parseEther("1") });
-
     const walletAddress = await api.getWalletAddress();
+    await paymaster.testDeposit(walletOwner.address, { value: ethers.utils.parseEther("1") });
+
     expect(await provider.getCode(walletAddress).then((code) => code.length)).to.equal(2);
     const op = await api.createSignedUserOp({
       target: recipient.address,

@@ -12,17 +12,27 @@ contract ChainlinkStripePaymaster is Ownable, BasePaymaster {
     transferOwnership(owner_);
   }
 
+  mapping(address => uint256) public deposits;
+
+  // this is for manual deposit for testing, this should be automated by chainlink for prod
+  function testDeposit(address account) public payable {
+    deposits[account] = deposits[account] + msg.value;
+  }
+
   function validatePaymasterUserOp(
     UserOperation calldata userOp,
     bytes32 requestId,
     uint256 maxCost
   ) external view override returns (bytes memory context) {
-    // this is Account Abstraction User Operation Signer Address
+    // this is Account Abstraction wallet address
     address account = userOp.sender;
-    console.log(account);
+    // Actually Subscription can be managed by Account Abstraction wallet level
+    // However, for this hackathon, subscription is managed by user op signer == metamask
+    address signer = Ownable(account).owner();
     // should check with the stripe payment status
+    require(deposits[signer] > maxCost, "ChainlinkStripePaymaster: deposit is not enough");
 
-    return abi.encode(account);
+    return abi.encode(signer);
   }
 
   function _postOp(
@@ -31,9 +41,7 @@ contract ChainlinkStripePaymaster is Ownable, BasePaymaster {
     uint256 actualGasCost
   ) internal override {
     address account = abi.decode(context, (address));
-
-    console.log("_postOp");
-    console.log(account);
-    // should substract with the stripe payment status
+    // deduct fee from the account
+    deposits[account] = deposits[account] - actualGasCost;
   }
 }
