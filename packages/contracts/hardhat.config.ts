@@ -3,7 +3,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import * as dotenv from "dotenv";
 import { HardhatUserConfig } from "hardhat/config";
 
-import { TIMEOUT } from "./config";
+import { HARDHAT_CHAINID, TIMEOUT } from "./config";
 import { getMnemonic } from "./lib/dev/mnemonic";
 import { getNetworksUserConfigs } from "./lib/dev/network";
 import networkJsonFile from "./network.json";
@@ -40,7 +40,9 @@ const config: HardhatUserConfig = {
               url: networkJsonFile[process.env.FORK_CHAIN_ID as ChainId].rpc,
             },
           }
-        : {},
+        : {
+            chainId: HARDHAT_CHAINID,
+          },
     ...networksUserConfigs,
   },
   etherscan: {

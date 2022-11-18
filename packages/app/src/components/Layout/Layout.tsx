@@ -18,7 +18,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Box as="nav" py="4">
           <HStack justify="space-between" alignItems={"center"} h="12">
             <Link href="/">
-              <Image src={"/assets/icon.png"} alt="logo" h="12" rounded={configJsonFile.style.radius} />
+              <Image src={"/assets/icon.png"} alt="logo" h="8" rounded={configJsonFile.style.radius} />
             </Link>
             <Box>
               <ConnectButton accountStatus={"address"} showBalance={false} chainStatus={"icon"} />
