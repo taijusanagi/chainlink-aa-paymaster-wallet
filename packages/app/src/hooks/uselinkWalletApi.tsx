@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useNetwork, useSigner } from "wagmi";
 
 import deployments from "../../../contracts/deployments.json";
+import { ChainlinkStripePaymaster } from "../../../contracts/lib/ChainlinkStripePaymaster";
 import { LinkWalletAPI } from "../../../contracts/lib/LinkWalletAPI";
 import { useIsSignedIn } from "./useIsSignedIn";
 
@@ -31,12 +32,16 @@ export const useLinkWalletAPI = () => {
       const bundler = new HttpRpcClient(uri, deployments.entryPoint, chain.id);
       setBundler(bundler);
       const provider = signer.provider;
+
+      const chainlinkStripePaymaster = new ChainlinkStripePaymaster(deployments.paymaster);
+
       const linkWalletAPI = new LinkWalletAPI({
         provider,
         entryPointAddress: deployments.entryPoint,
         owner: signer,
         factoryAddress: deployments.factory,
         index: 0,
+        paymasterAPI: chainlinkStripePaymaster,
       });
       setLinkWalletAPI(linkWalletAPI);
       const LinkWalletAddress = await linkWalletAPI.getWalletAddress();
