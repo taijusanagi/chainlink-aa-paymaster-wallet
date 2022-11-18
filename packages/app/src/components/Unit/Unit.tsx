@@ -4,7 +4,7 @@ import configJsonFile from "../../../config.json";
 
 export interface UnitProps extends BoxProps {
   header: string;
-  description: string;
+  description?: string;
 }
 
 export const Unit: React.FC<UnitProps> = ({ children, header, description, ...props }) => {
@@ -23,9 +23,11 @@ export const Unit: React.FC<UnitProps> = ({ children, header, description, ...pr
           <Text fontWeight={"bold"} fontSize="md" color={configJsonFile.style.color.black.text.primary}>
             {header}
           </Text>
-          <Text fontSize="sm" color={configJsonFile.style.color.black.text.secondary}>
-            {description}
-          </Text>
+          {description && (
+            <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
+              {description}
+            </Text>
+          )}
         </Stack>
         <Box py="2">{children}</Box>
       </Stack>

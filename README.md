@@ -1,6 +1,8 @@
 # Link Wallet
 
-Offchain Payment Account Abstraction Wallet with Chainlink
+Off-chain Payment Account Abstraction Wallet with Chainlink
+
+![top-screen-shot](./docs/top-screen-shot.png)
 
 ## Submission
 
@@ -16,7 +18,7 @@ TBD
 
 ## User Benefits
 
-- User can pay gas-fee offchain when start using new chain, in this hackathon, it is Polygon
+- User can pay gas-fee Off-chain when start using new chain, in this hackathon, it is Polygon
 - It enables users to skip "bridge token from the other chain" or "send token from the central exchange", which is first obstacle for users to start using blockchain based app
 - It brings very good on-boarding especially for the new user
 

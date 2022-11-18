@@ -26,13 +26,13 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </HStack>
         </Box>
       </Container>
-      <Container maxW="xl" py="4" flex={1}>
+      <Container maxW="4xl" py="16" flex={1}>
         {children}
       </Container>
       <Container maxW="8xl">
         <Box as="nav" py="4">
           <HStack justify={"space-between"}>
-            <Text fontSize={"xs"} color={configJsonFile.style.color.black.text.secondary} fontWeight={"medium"}>
+            <Text fontSize={"xs"} color={configJsonFile.style.color.black.text.tertiary} fontWeight={"medium"}>
               <Text as="span" mr="2">
                 😘
               </Text>
@@ -46,7 +46,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <Icon
                   as={FaGithub}
                   aria-label="github"
-                  color={configJsonFile.style.color.black.text.secondary}
+                  color={configJsonFile.style.color.black.text.tertiary}
                   w={6}
                   h={6}
                 />
