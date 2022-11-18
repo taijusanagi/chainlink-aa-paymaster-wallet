@@ -194,7 +194,7 @@ const HomePage: NextPage = () => {
                 <Stack spacing="4">
                   <Stack spacing="0">
                     <Text fontSize="sm" fontWeight={"bold"} color={configJsonFile.style.color.black.text.secondary}>
-                      Remaining Off-chain Gas
+                      Remaining Offchain Gas
                     </Text>
                     <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
                       0 USD

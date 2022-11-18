@@ -26,7 +26,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </HStack>
         </Box>
       </Container>
-      <Container maxW="4xl" py="16" flex={1}>
+      <Container maxW="4xl" py="24" flex={1}>
         {children}
       </Container>
       <Container maxW="8xl">
