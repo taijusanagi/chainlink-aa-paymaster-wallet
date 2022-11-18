@@ -6,7 +6,7 @@
     "domainId": 9991,
     "currency": "MATIC",
     "icon": "polygon.svg",
-    "rpc": "https://rpc.ankr.com/polygon_mumbai",
+    "rpc": "https://cosmological-wild-shadow.matic-testnet.discover.quiknode.pro/841ca310d3e929c353000fc44f52ddd23232ac62/",
     "explorer": {
       "tx": { "name": "Polygonscan", "url": "https://mumbai.polygonscan.com" },
       "nft": { "name": "Opensea", "url": "https://testnets.opensea.io/assets/mumbai" }

@@ -20,25 +20,38 @@ https://link-wallet.vercel.app/
 
 ## User Benefits
 
-- Users can pay the gas fee by an off-chain subscription
-- It enables users to skip "bridge token from the other chain" or "send token from the central exchange", which is the first obstacle for users to start using a blockchain-based app
+Users can pay the gas fee with an off-chain subscription
+
+- It enables users to skip "bridge token from the other chain" or "send token from the central exchange," which is the first obstacle for users to start using a blockchain-based app
 - It brings excellent onboarding, especially for the new user
 
-## How it works
+## What it does
 
 ![how-it-works](./docs/how-it-works.png)
 
+1. User can pay the gas fee by credit card with a stripe subscription
+2. After the user subscribe, the webhook is called from Stripe, and the webhook sends tx to call the Chainlink
+3. Chainlink gets the payment status from the stripe API, then stores it in the paymaster contract
+4. Paymaster contract verifies the payment status, then pay the gas fee for paid users.
+
+## How we built it
+
 - The blue part is the main implementation of the hackathon
-- Payment status is integrated securely with [Chainlink External Adapters](https://docs.chain.link/chainlink-nodes/external-adapters/external-adapters)
+- Payment status is integrated securely with Chainlink
 - Verification is implemented in an Account Abstraction way which brings better flexibility than the normal meta transaction
 
 Implementation details are the followings.
 
 ### Chainlink Integration
 
-- To integrate stripe payment status to the Polygon Mumbai
+- This is to integrate stripe payment status to the Account Abstraction Paymaster
 - The Main reference of the integration
   - https://docs.chain.link/chainlink-nodes/external-adapters/external-adapters
+- The Main implementation part is here
+  - Contract
+    - https://github.com/taijusanagi/chainlink-aa-paymaster-wallet/blob/main/packages/contracts/contracts/ChainlinkStripePaymaster.sol#L68
+  - Backend
+    - https://github.com/taijusanagi/chainlink-aa-paymaster-wallet/blob/main/packages/app/src/pages/api/stripe/checkout-callback-to-request-chainlink.ts#L13
 
 ### Paymaster
 
