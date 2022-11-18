@@ -8,6 +8,7 @@ import { useNetwork, useSigner } from "wagmi";
 import deployments from "../../../contracts/deployments.json";
 import { ChainlinkStripePaymaster } from "../../../contracts/lib/ChainlinkStripePaymaster";
 import { LinkWalletAPI } from "../../../contracts/lib/LinkWalletAPI";
+import { EntryPoint } from "../../../contracts/typechain-types";
 import { useIsSignedIn } from "./useIsSignedIn";
 
 export const useLinkWalletAPI = () => {
@@ -17,6 +18,7 @@ export const useLinkWalletAPI = () => {
   const { isSignedIn } = useIsSignedIn();
 
   const [bundler, setBundler] = useState<HttpRpcClient>();
+  const [entryPoint, setEntryPoint] = useState<EntryPoint>();
   const [linkWalletAPI, setLinkWalletAPI] = useState<LinkWalletAPI>();
   const [linkWalletAddress, setLinkWalletAddress] = useState<string>();
   const [linkWalletBalance, setLinkWalletBalance] = useState("0");
@@ -33,9 +35,8 @@ export const useLinkWalletAPI = () => {
       setBundler(bundler);
       const provider = signer.provider;
 
+      console.log("paymaster", deployments.paymaster);
       const chainlinkStripePaymaster = new ChainlinkStripePaymaster(deployments.paymaster);
-
-      console.log("deployments.entryPoint", deployments.entryPoint);
 
       const linkWalletAPI = new LinkWalletAPI({
         provider,
@@ -52,15 +53,17 @@ export const useLinkWalletAPI = () => {
       const remainder = LinkWalletBalanceBigNumber.mod(1e14);
       const LinkWalletBalance = ethers.utils.formatEther(LinkWalletBalanceBigNumber.sub(remainder));
       setLinkWalletBalance(LinkWalletBalance);
+
+      const entryPoint = EntryPoint__factory.connect(deployments.entryPoint, signer);
+      setEntryPoint(entryPoint);
     })();
   }, [chain, signer, isSignedIn]);
 
   const getTransactionHashByRequestID = async (requestId: string) => {
-    if (!signer || !signer.provider) {
+    if (!signer || !signer.provider || !entryPoint) {
       throw new Error("signer or provider invalid");
     }
     const provider = signer.provider;
-    const entryPoint = EntryPoint__factory.connect(deployments.entryPoint, signer.provider);
     const filter = entryPoint.filters.UserOperationEvent(requestId);
     const transactionHash: string = await new Promise((resolve) => {
       const intervalId = setInterval(async () => {
@@ -79,6 +82,7 @@ export const useLinkWalletAPI = () => {
 
   return {
     bundler,
+    entryPoint,
     linkWalletAPI,
     linkWalletAddress,
     linkWalletBalance,

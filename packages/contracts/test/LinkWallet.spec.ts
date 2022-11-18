@@ -115,7 +115,7 @@ describe("LinkWallet", function () {
       const subscriptionFeeInUSD = await paymaster.subscriptionFeeInUSD();
       const ethWeiForSevenUSD = await paymaster.getCurrentEthAmountForSubscription(subscriptionFeeInUSD);
       // this works
-      console.log(`${subscriptionFeeInUSD} USD is equivalent to ${ethers.utils.formatEther(ethWeiForSevenUSD)} ETH`);
+      console.log(`${subscriptionFeeInUSD} USD is equivalent to ${ethers.utils.formatEther(ethWeiForSevenUSD)} MATIC`);
       const paymentId = "paymentId";
       const requestURI = await paymaster.getRequestURI(paymentId);
       console.log("requestURI", requestURI);

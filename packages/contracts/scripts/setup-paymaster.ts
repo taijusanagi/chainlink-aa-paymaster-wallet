@@ -23,20 +23,26 @@ async function main() {
   const linkTokenContract = IERC20__factory.connect(link, signer);
   const paymasterContract = ChainlinkStripePaymaster__factory.connect(paymaster, signer);
 
+  // const test = await paymasterContract.testDeposit("0xb984491F724962A43dbe468C1743055f2a771D73", {
+  //   value: ethers.utils.parseEther("0.1"),
+  // });
+  // return;
+
   // paymaster stake & deposit
   // this is required because paymaster pay gas fee for user
 
   // let's set less amount for testing, testnet token is hard to get
-  const depositTx = await paymasterContract.deposit({ value: ethers.utils.parseEther("0.5") });
+  const depositTx = await paymasterContract.deposit({ value: ethers.utils.parseEther("1") });
   console.log("depositTx:", depositTx.hash);
   await depositTx.wait();
-  const addStakeTx = await paymasterContract.addStake(0, { value: ethers.utils.parseEther("0.5") });
+  const addStakeTx = await paymasterContract.addStake(0, { value: ethers.utils.parseEther("1") });
   console.log("addStakeTx:", addStakeTx.hash);
   await addStakeTx.wait();
 
   // link deposit
   // this is required to use chainlink
-  const transferTx = await linkTokenContract.transfer(paymaster, ethers.utils.parseEther("1"));
+  const transferTx = await linkTokenContract.transfer(paymaster, ethers.utils.parseEther("5"));
+
   console.log("transferTx:", transferTx.hash);
   await transferTx.wait();
 }

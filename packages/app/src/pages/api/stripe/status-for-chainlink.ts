@@ -64,7 +64,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   console.log("userWallet", customer.metadata.walletAddress);
-  console.log("userWallet info is fulfilled to the paymaster contract by Chainlink");
+  console.log("userWallet has 7USD deposit in the paymaster contract now");
 
   return res.status(200).json({ status: true, account: customer.metadata.walletAddress, env: "test" });
 };

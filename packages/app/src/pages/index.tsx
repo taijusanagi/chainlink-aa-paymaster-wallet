@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import {
   Button,
   Flex,
@@ -18,7 +19,7 @@ import { signTypedData } from "@wagmi/core";
 import WalletConnect from "@walletconnect/client";
 import { convertHexToUtf8 } from "@walletconnect/utils";
 import { NextPage } from "next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AiOutlineQrcode } from "react-icons/ai";
 import { useSigner } from "wagmi";
 
@@ -33,6 +34,7 @@ import { useIsSubscribed } from "@/hooks/useIsSubscribed";
 import { useLinkWalletAPI } from "@/hooks/uselinkWalletApi";
 import { compareInLowerCase, truncate } from "@/lib/utils";
 
+import { EntryPoint__factory } from "../../../contracts/typechain-types";
 import configJsonFile from "../../config.json";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -47,7 +49,8 @@ const HomePage: NextPage = () => {
   const { isSignedIn } = useIsSignedIn();
   const { isSubscribed } = useIsSubscribed();
 
-  const { linkWalletAddress, linkWalletBalance, bundler, linkWalletAPI, getTransactionHashByRequestID } =
+  // entry point is for test
+  const { linkWalletAddress, linkWalletBalance, bundler, entryPoint, linkWalletAPI, getTransactionHashByRequestID } =
     useLinkWalletAPI();
 
   const [isProcessingStripeCheckout, setIsProcessingStripeCheckout] = useState(false);
@@ -119,6 +122,7 @@ const HomePage: NextPage = () => {
       });
       if (walletConnectConnector.connected) {
         console.log("kill previous session and recreate session");
+
         await walletConnectConnector.killSession();
         walletConnectConnector = new WalletConnect({
           uri: walletConnectURI,
@@ -204,8 +208,10 @@ const HomePage: NextPage = () => {
         target: to,
         data,
         value,
-        gasLimit,
+        gasLimit: Number(gasLimit) * 2, // let's add some extra gas
       });
+      console.log("before", op);
+      op.paymasterAndData = "0xfaf0064bc2d8abeb1bbfacee7f981d2ee9a15945";
       console.log("user op", op);
       const requestId = await bundler.sendUserOpToBundler(op);
       console.log("request sent", requestId);
@@ -253,7 +259,13 @@ const HomePage: NextPage = () => {
                   <Text fontSize="xs" color={configJsonFile.style.color.black.text.secondary}>
                     {!linkWalletAddress && <>Loading...</>}
                     {linkWalletAddress && (
-                      <Link color={configJsonFile.style.color.link}>{truncate(linkWalletAddress, 16, 16)}</Link>
+                      <Link
+                        color={configJsonFile.style.color.link}
+                        href={`${connectedChainConfig.explorer.tx.url}/address/${linkWalletAddress}`}
+                        target={"_blank"}
+                      >
+                        {truncate(linkWalletAddress, 16, 16)}
+                      </Link>
                     )}
                   </Text>
                 </Stack>
