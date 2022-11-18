@@ -17,11 +17,12 @@ contract ChainlinkStripePaymaster is Ownable, BasePaymaster {
     bytes32 requestId,
     uint256 maxCost
   ) external view override returns (bytes memory context) {
-    console.log("validatePaymasterUserOp");
+    // this is Account Abstraction User Operation Signer Address
+    address account = userOp.sender;
+    console.log(account);
+    // should check with the stripe payment status
 
-    // add validate
-    // _postOp is called only context is set
-    return abi.encode("ok");
+    return abi.encode(account);
   }
 
   function _postOp(
@@ -29,7 +30,10 @@ contract ChainlinkStripePaymaster is Ownable, BasePaymaster {
     bytes calldata context,
     uint256 actualGasCost
   ) internal override {
+    address account = abi.decode(context, (address));
+
     console.log("_postOp");
-    // add substract
+    console.log(account);
+    // should substract with the stripe payment status
   }
 }
