@@ -1,6 +1,4 @@
 /* eslint-disable camelcase */
-import { EntryPoint__factory, UserOperationStruct } from "@account-abstraction/contracts";
-import { rethrowError } from "@account-abstraction/utils";
 import { SampleRecipient__factory } from "@account-abstraction/utils/dist/src/types";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
@@ -9,26 +7,32 @@ import { ethers } from "hardhat";
 import { ChainlinkStripePaymaster } from "../lib/ChainlinkStripePaymaster";
 import { DeterministicDeployer } from "../lib/infinitism/DeterministicDeployer";
 import { LinkWalletAPI } from "../lib/LinkWalletAPI";
-import { ChainlinkStripePaymaster__factory, LinkWalletDeployer__factory } from "../typechain-types";
+// Using EntryPoint__factory for debug
+import {
+  ChainlinkStripePaymaster__factory,
+  EntryPoint__factory,
+  LinkWalletDeployer__factory,
+} from "../typechain-types";
 
 describe("LinkWallet", function () {
   async function fixture() {
     const provider = ethers.provider;
-    const [signer, owner] = await ethers.getSigners();
+    const [signer, walletOwner, paymasterOwner] = await ethers.getSigners();
     const beneficiary = await signer.getAddress();
+
     const entryPoint = await new EntryPoint__factory(signer).deploy(1, 1);
     const recipient = await new SampleRecipient__factory(signer).deploy();
     const factoryAddress = await DeterministicDeployer.deploy(LinkWalletDeployer__factory.bytecode);
 
-    return { provider, signer, owner, beneficiary, recipient, factoryAddress, entryPoint };
+    return { provider, signer, walletOwner, paymasterOwner, beneficiary, recipient, factoryAddress, entryPoint };
   }
 
   it("without paymaster", async () => {
-    const { provider, signer, owner, beneficiary, recipient, factoryAddress, entryPoint } = await fixture();
+    const { provider, signer, walletOwner, beneficiary, recipient, factoryAddress, entryPoint } = await fixture();
     const api = new LinkWalletAPI({
       provider,
       entryPointAddress: entryPoint.address,
-      owner,
+      owner: walletOwner,
       factoryAddress,
     });
     const walletAddress = await api.getWalletAddress();
@@ -48,29 +52,35 @@ describe("LinkWallet", function () {
   });
 
   it("with paymaster", async () => {
-    const { provider, signer, owner, beneficiary, recipient, factoryAddress, entryPoint } = await fixture();
-
-    const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(["address"], [entryPoint.address]);
+    const { provider, walletOwner, paymasterOwner, beneficiary, recipient, factoryAddress, entryPoint } =
+      await fixture();
+    const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(
+      ["address", "address"],
+      [entryPoint.address, paymasterOwner.address]
+    );
     const paymasterCreationCode = ethers.utils.solidityPack(
       ["bytes", "bytes"],
       [ChainlinkStripePaymaster__factory.bytecode, deployPaymasterArgument]
     );
+
     const paymasterAddress = await DeterministicDeployer.deploy(paymasterCreationCode);
     const paymasterAPI = new ChainlinkStripePaymaster(paymasterAddress);
 
     const api = new LinkWalletAPI({
       provider,
       entryPointAddress: entryPoint.address,
-      owner,
+      owner: walletOwner,
       factoryAddress,
       paymasterAPI,
     });
+    const paymaster = ChainlinkStripePaymaster__factory.connect(paymasterAddress, paymasterOwner);
+
+    // IMPORTANT: this is the setup for the paymaster
+    await paymaster.deposit({ value: ethers.utils.parseEther("1") });
+    await paymaster.addStake(0, { value: ethers.utils.parseEther("1") });
+
     const walletAddress = await api.getWalletAddress();
     expect(await provider.getCode(walletAddress).then((code) => code.length)).to.equal(2);
-    await signer.sendTransaction({
-      to: walletAddress,
-      value: ethers.utils.parseEther("0.1"),
-    });
     const op = await api.createSignedUserOp({
       target: recipient.address,
       data: recipient.interface.encodeFunctionData("something", ["hello"]),
