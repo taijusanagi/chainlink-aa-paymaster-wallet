@@ -13,7 +13,8 @@
     },
     "contracts": {
       "link": "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
-      "oracle": "0x40193c8518BB267228Fc409a613bDbD8eC5a97b3"
+      "oracle": "0x40193c8518BB267228Fc409a613bDbD8eC5a97b3",
+      "priceFeed": "0x0715A7794a1dc8e42615F059dD6e406A6594651A"
     },
     "api": "moralis"
   }

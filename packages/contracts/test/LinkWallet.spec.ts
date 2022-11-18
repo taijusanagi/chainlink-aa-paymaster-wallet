@@ -4,6 +4,7 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+import { JOB_ID } from "../config";
 import { ChainlinkStripePaymaster } from "../lib/ChainlinkStripePaymaster";
 import { DeterministicDeployer } from "../lib/infinitism/DeterministicDeployer";
 import { LinkWalletAPI } from "../lib/LinkWalletAPI";
@@ -14,7 +15,7 @@ import {
   EntryPoint__factory,
   LinkWalletDeployer__factory,
 } from "../typechain-types";
-import { ADDRESS_1 } from "./helper/dummy";
+import { ADDRESS_1, BYTES32_1 } from "./helper/dummy";
 
 describe("LinkWallet", function () {
   async function fixture() {
@@ -58,9 +59,9 @@ describe("LinkWallet", function () {
       const { provider, walletOwner, paymasterOwner, beneficiary, recipient, factoryAddress, entryPoint } =
         await fixture();
       const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "address", "address"],
-        // this address data is dummy for local testing
-        [entryPoint.address, paymasterOwner.address, ADDRESS_1, ADDRESS_1]
+        ["address", "address", "address", "address", "address", "bytes32"],
+        // chainlink data is dummy for the local testing
+        [entryPoint.address, paymasterOwner.address, ADDRESS_1, ADDRESS_1, ADDRESS_1, BYTES32_1]
       );
       const paymasterCreationCode = ethers.utils.solidityPack(
         ["bytes", "bytes"],
@@ -106,11 +107,11 @@ describe("LinkWallet", function () {
 
     it("chain link test", async () => {
       const { paymasterOwner, entryPoint } = await fixture();
-      const { link, oracle } = networkJsonFile[chainId].contracts;
+      const { link, oracle, priceFeed } = networkJsonFile[chainId].contracts;
       const deployPaymasterArgument = ethers.utils.defaultAbiCoder.encode(
-        ["address", "address", "address", "address"],
+        ["address", "address", "address", "address", "address", "bytes32"],
         // this address data is dummy for local testing
-        [entryPoint.address, paymasterOwner.address, link, oracle]
+        [entryPoint.address, paymasterOwner.address, link, oracle, priceFeed, JOB_ID]
       );
       const paymasterCreationCode = ethers.utils.solidityPack(
         ["bytes", "bytes"],

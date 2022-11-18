@@ -6,6 +6,9 @@ import "@account-abstraction/contracts/core/BasePaymaster.sol";
 
 import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+import "hardhat/console.sol";
 
 contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
   using Chainlink for Chainlink.Request;
@@ -14,19 +17,22 @@ contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
 
   // this is constant for the hackathon
   uint256 public constant subscriptionFeeInUSD = 7; // 7 USD
+  address public immutable priceFeed;
+  bytes32 public immutable jobId;
 
-  bytes32 private _jobId;
-
-  // owner should be set here because of the DeterministicDeployer limitation
   constructor(
     IEntryPoint anEntryPoint,
-    address owner_,
+    address actualOwner,
     address link,
-    address oracle
+    address oracle,
+    address priceFeed_,
+    bytes32 jobId_
   ) BasePaymaster(anEntryPoint) {
-    transferOwnership(owner_);
+    transferOwnership(actualOwner); // owner should be set here because of the DeterministicDeployer
     setChainlinkToken(link);
     setChainlinkOracle(oracle);
+    priceFeed = priceFeed_;
+    jobId = jobId_;
   }
 
   mapping(address => uint256) public deposits;
@@ -36,7 +42,7 @@ contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
    */
 
   function request() public returns (bytes32 requestId) {
-    Chainlink.Request memory req = buildChainlinkRequest(_jobId, address(this), this.fulfill.selector);
+    Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
   }
 
   function fulfill(
@@ -51,8 +57,10 @@ contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
   }
 
   function getCurrentEthAmountForSubscription(uint256 amount) public view returns (uint256) {
+    (, int256 answer, , , ) = AggregatorV3Interface(priceFeed).latestRoundData();
+    console.logInt(answer);
     // this should use chain link price feed
-    return amount * 714000000000000;
+    return amount * uint256(answer);
   }
 
   /*
