@@ -15,6 +15,7 @@
     "@emotion/styled": "^11",
     "@fontsource/inter": "^4.5.14",
     "@rainbow-me/rainbowkit": "^0.7.4",
+    "@stripe/stripe-js": "^1.44.1",
     "ethers": "^5.7.2",
     "framer-motion": "^6",
     "next": "13.0.1",

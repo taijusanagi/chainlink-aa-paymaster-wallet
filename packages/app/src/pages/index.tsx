@@ -13,6 +13,7 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { loadStripe } from "@stripe/stripe-js";
 import { signTypedData } from "@wagmi/core";
 import WalletConnect from "@walletconnect/client";
 import { convertHexToUtf8 } from "@walletconnect/utils";
@@ -56,6 +57,30 @@ const HomePage: NextPage = () => {
 
   const { handleError } = useErrorHandler();
   const qrReaderDisclosure = useDisclosure();
+
+  const checkout = async () => {
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+      });
+      const session = await res.json();
+      const publishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+      if (!publishableKey) {
+        throw new Error("Stripe publishable key not set");
+      }
+      const stripe = await loadStripe(publishableKey as string, {
+        apiVersion: "2020-08-27",
+      });
+      if (!stripe) {
+        throw new Error("Stripe not set");
+      }
+      await stripe.redirectToCheckout({
+        sessionId: session.id,
+      });
+    } catch (e) {
+      handleError(e);
+    }
+  };
 
   const onQRReaderScan = (result: { text: string }) => {
     if (!result) {
@@ -247,7 +272,7 @@ const HomePage: NextPage = () => {
                       0 USD
                     </Text>
                   </Stack>
-                  <Button>Pay by Stripe</Button>
+                  <Button onClick={checkout}>Pay by Stripe</Button>
                 </Stack>
               </Stack>
             </Unit>
