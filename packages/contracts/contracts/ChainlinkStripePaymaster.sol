@@ -4,12 +4,24 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@account-abstraction/contracts/core/BasePaymaster.sol";
 
-import "hardhat/console.sol";
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
 
-contract ChainlinkStripePaymaster is Ownable, BasePaymaster {
+contract ChainlinkStripePaymaster is Ownable, ChainlinkClient, BasePaymaster {
+  using Chainlink for Chainlink.Request;
+
+  // bytes32 private _jobId;
+
   // owner should be set here because of the DeterministicDeployer limitation
-  constructor(IEntryPoint anEntryPoint, address owner_) BasePaymaster(anEntryPoint) {
+  constructor(
+    IEntryPoint anEntryPoint,
+    address owner_,
+    address link,
+    address oracle
+  ) BasePaymaster(anEntryPoint) {
     transferOwnership(owner_);
+    setChainlinkToken(link);
+    setChainlinkOracle(oracle);
   }
 
   mapping(address => uint256) public deposits;

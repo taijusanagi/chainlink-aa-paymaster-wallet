@@ -11,6 +11,10 @@
       "tx": { "name": "Etherscan", "url": "https://goerli.etherscan.io" },
       "nft": { "name": "Opensea", "url": "https://testnets.opensea.io/assets/mumbai" }
     },
+    "contracts": {
+      "link": "0xb0897686c545045aFc77CF20eC7A532E3120E0F1",
+      "oracle": "0x40193c8518BB267228Fc409a613bDbD8eC5a97b3"
+    },
     "api": "moralis"
   }
 }

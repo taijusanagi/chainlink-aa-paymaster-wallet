@@ -9,6 +9,7 @@
     "dev:deploy": "wait-on http://localhost:8545 && hardhat run scripts/deploy.ts --network localhost",
     "build": "hardhat compile",
     "test": "hardhat test",
+    "integration-test": "IS_INTEGRATION_TEST=true FORK_CHAIN_ID=80001 yarn hardhat test",
     "lint": "eslint '**/*.{js,ts}' --ignore-path .gitignore"
   },
   "devDependencies": {
@@ -45,6 +46,7 @@
   "dependencies": {
     "@account-abstraction/contracts": "^0.2.0",
     "@account-abstraction/sdk": "^0.2.3",
+    "@chainlink/contracts": "^0.5.1",
     "@openzeppelin/contracts": "^4.7.3"
   }
 }
