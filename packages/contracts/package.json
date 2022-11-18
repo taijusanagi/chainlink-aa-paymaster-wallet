@@ -1,15 +1,15 @@
 {
-  "name": "@capsule-wallet/contracts",
+  "name": "@link-wallet/contracts",
   "version": "0.0.1",
   "license": "MIT",
   "private": true,
   "scripts": {
-    "lint": "eslint '**/*.{js,ts}' --ignore-path .gitignore",
-    "test": "hardhat test",
     "dev": "run-p dev:*",
     "dev:node": "hardhat node",
     "dev:deploy": "wait-on http://localhost:8545 && hardhat run scripts/deploy.ts --network localhost",
-    "build": "hardhat compile"
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "lint": "eslint '**/*.{js,ts}' --ignore-path .gitignore"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",

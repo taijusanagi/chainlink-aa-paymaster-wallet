@@ -1,0 +1,16 @@
+{
+  "80001": {
+    "key": "polygon-mumbai",
+    "env": "testnet",
+    "name": "Polygon Mumbai",
+    "domainId": 9991,
+    "currency": "MATIC",
+    "icon": "polygon.svg",
+    "rpc": "https://rpc.ankr.com/polygon_mumbai",
+    "explorer": {
+      "tx": { "name": "Etherscan", "url": "https://goerli.etherscan.io" },
+      "nft": { "name": "Opensea", "url": "https://testnets.opensea.io/assets/mumbai" }
+    },
+    "api": "moralis"
+  }
+}

@@ -1,28 +1,22 @@
-import "@nomicfoundation/hardhat-chai-matchers";
-import "@nomiclabs/hardhat-ethers";
-import "@nomiclabs/hardhat-etherscan";
-import "@typechain/hardhat";
+import "@nomicfoundation/hardhat-toolbox";
 
 import * as dotenv from "dotenv";
-import fs from "fs";
 import { HardhatUserConfig } from "hardhat/config";
 
-import rpc from "./config/rpc.json";
+import { TIMEOUT } from "./config";
+import { getMnemonic } from "./lib/dev/mnemonic";
+import { getNetworksUserConfigs } from "./lib/dev/network";
+import networkJsonFile from "./network.json";
+import { ChainId } from "./types/ChainId";
 
 dotenv.config();
 
-const mnemonicFileName = "../../mnemonic.txt";
-let mnemonic = "test ".repeat(11) + "junk";
-if (fs.existsSync(mnemonicFileName)) {
-  mnemonic = fs.readFileSync("../../mnemonic.txt", "ascii").trim();
-}
+const mnemonic = getMnemonic();
+const networksUserConfigs = getNetworksUserConfigs(mnemonic);
 
 const config: HardhatUserConfig = {
   solidity: {
     compilers: [
-      {
-        version: "0.7.6",
-      },
       {
         version: "0.8.15",
       },
@@ -35,21 +29,27 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    hardhat: {
-      chainId: 1337,
-      accounts: {
-        mnemonic,
-      },
-    },
-    goerli: {
-      url: rpc.goerli,
-      accounts: {
-        mnemonic,
-      },
-    },
+    hardhat:
+      process.env.IS_INTEGRATION_TEST === "true"
+        ? {
+            chainId: Number(process.env.FORK_CHAIN_ID),
+            accounts: {
+              mnemonic,
+            },
+            forking: {
+              url: networkJsonFile[process.env.FORK_CHAIN_ID as ChainId].rpc,
+            },
+          }
+        : {},
+    ...networksUserConfigs,
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      polygonMumbai: process.env.POLYGONSCAN_API || "",
+    },
+  },
+  mocha: {
+    timeout: TIMEOUT,
   },
 };
 

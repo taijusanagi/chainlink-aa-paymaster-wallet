@@ -1,0 +1,39 @@
+{
+  "name": "LinkWallet",
+  "description": "Offchain Payment Account Abstraction Wallet with Chainlink",
+  "url": {
+    "app": "https://link-wallet.vercel.app",
+    "github": "https://github.com/taijusanagi/chainlink-aa-paymaster-wallet",
+    "chainlnk": "https://chain.link"
+  },
+  "style": {
+    "color": {
+      "black": {
+        "bg": "#DFE6F8",
+        "text": {
+          "primary": "gray.700",
+          "secondary": "gray.500"
+        }
+      },
+      "white": {
+        "bg": "#F6F7F8"
+      },
+      "accent": "#AAA8B8",
+      "brand": {
+        "50": "#F0F0F4",
+        "100": "#D6D6E1",
+        "200": "#BCBBCE",
+        "300": "#A2A0BA",
+        "400": "#8886A7",
+        "500": "#6E6B94",
+        "600": "#585676",
+        "700": "#424059",
+        "800": "#2C2B3B",
+        "900": "#16151E"
+      }
+    },
+    "size": "md",
+    "radius": "lg",
+    "shadow": "md"
+  }
+}
